@@ -6,6 +6,7 @@
 #include "rand.h"
 #include "interval.h"
 #include "hittable.h"
+#include "material.h"
 
 Camera::Camera(Description description) : m_desc(description) {
     const auto aspect_ratio = static_cast<double>(m_desc.width) / static_cast<double>(m_desc.height);
@@ -60,11 +61,21 @@ void Camera::render(const IHittable& scene) const {
     }
 }
 
-vec3 Camera::ray_color_r([[maybe_unused]] const Ray& ray, [[maybe_unused]] const IHittable& scene, uint32_t depth) {
+vec3 Camera::ray_color_r(const Ray& ray, const IHittable& scene, uint32_t depth) {
     if (depth == 0)
         return vec3{0.0};
 
-    // TODO:
+    const auto record = scene.hits(ray, interval(0.001, interval::infinity));
+    if (record) {
+        const auto material_hit = record->material->scatter(ray, *record);
+        if (material_hit) {
+            return material_hit->attenuation * ray_color_r(material_hit->scatter, scene, depth - 1);
+        }
+
+        return vec3{0.0};
+    }
+
+    // TODO: Sky
     return vec3{1.0};
 }
 

@@ -5,14 +5,15 @@
 
 // HitRecord
 void HitRecord::set_front_face(const Ray& ray, const vec3& outward_normal) {
-    front_face = glm::dot(ray.direction(), outward_normal) < 0;
+    front_face = glm::dot(ray.direction(), outward_normal) < 0.0;
     normal = front_face ? outward_normal : -outward_normal;
 }
 
 //
 // Sphere
 //
-Sphere::Sphere(vec3 position, double radius) : m_position(position), m_radius(radius) {}
+Sphere::Sphere(vec3 position, double radius, std::shared_ptr<IMaterial> material)
+      : m_position(position), m_radius(radius), m_material(std::move(material)) {}
 
 std::optional<HitRecord> Sphere::hits(const Ray& ray, const interval& ray_t) const {
     const auto oc = ray.origin() - m_position;
@@ -37,7 +38,7 @@ std::optional<HitRecord> Sphere::hits(const Ray& ray, const interval& ray_t) con
     HitRecord record{};
     record.ts = root;
     record.point = ray.at(record.ts);
-    // record.material = m_material;
+    record.material = m_material;
 
     const auto outward_normal = (record.point - m_position) / m_radius;
     record.set_front_face(ray, outward_normal);

@@ -9,12 +9,14 @@
 // Forward declarations
 class Ray;
 class interval;
+class IMaterial;
 
 struct HitRecord {
     vec3 point;
     vec3 normal;
     double ts;
     bool front_face;
+    std::shared_ptr<IMaterial> material;
 
     // outward_normal assumed to be normalized
     void set_front_face(const Ray& ray, const vec3& outward_normal);
@@ -29,7 +31,7 @@ class IHittable {
 
 class Sphere : public IHittable {
   public:
-    Sphere(vec3 position, double radius);
+    Sphere(vec3 position, double radius, std::shared_ptr<IMaterial> material);
     ~Sphere() override = default;
 
     [[nodiscard]] std::optional<HitRecord> hits(const Ray& ray, const interval& ray_t) const override;
@@ -37,6 +39,7 @@ class Sphere : public IHittable {
   private:
     vec3 m_position;
     double m_radius;
+    std::shared_ptr<IMaterial> m_material;
 };
 
 class HittableList : public IHittable {

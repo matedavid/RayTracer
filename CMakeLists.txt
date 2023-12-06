@@ -19,6 +19,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 
         src/camera.cpp
         src/hittable.cpp
+        src/material.cpp
         src/rand.cpp
         src/ray.cpp
         src/vec3.cpp
