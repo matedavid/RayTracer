@@ -2,7 +2,8 @@
 
 #include <limits>
 
-struct interval {
+class interval {
+  public:
     double min;
     double max;
 

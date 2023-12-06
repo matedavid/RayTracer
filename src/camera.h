@@ -5,6 +5,7 @@
 
 // Forward declarations
 class Ray;
+class IHittable;
 
 class Camera {
   public:
@@ -20,7 +21,7 @@ class Camera {
 
     explicit Camera(Description description);
 
-    void render() const;
+    void render(const IHittable& scene) const;
 
   private:
     Description m_desc;
@@ -28,7 +29,7 @@ class Camera {
     vec3 m_delta_u{}, m_delta_v{};
     vec3 m_pixel00_loc{};
 
-    [[nodiscard]] static vec3 ray_color_r(const Ray& ray, uint32_t depth);
+    [[nodiscard]] static vec3 ray_color_r(const Ray& ray, const IHittable& scene, uint32_t depth);
     [[nodiscard]] vec3 pixel_sample_square() const;
     [[nodiscard]] static double linear_to_gamma(double val);
 };
