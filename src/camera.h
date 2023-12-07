@@ -12,11 +12,14 @@ class Camera {
     struct Description {
         uint32_t width = 1920;
         uint32_t height = 1080;
-        double focal_length = 1.0;
-        double vertical_fov = glm::radians(90.0f);
-        vec3 center = vec3{0.0};
         uint32_t samples_per_pixel = 10;
         uint32_t max_depth = 10;
+
+        // Camera positioning
+        double vertical_fov = glm::radians(90.0f); // in radians
+        vec3 look_from = vec3(0.0, 0.0, -1.0);
+        vec3 look_at =  vec3(0.0);
+        vec3 up = vec3(0.0, 1.0, 0.0);
     };
 
     explicit Camera(Description description);

@@ -10,11 +10,13 @@ int main() {
     const Camera camera({
         .width = IMAGE_WIDTH,
         .height = IMAGE_HEIGHT,
-        .focal_length = 1.0,
-        .vertical_fov = glm::radians(90.0f),
-        .center = glm::vec3(0.0f),
         .samples_per_pixel = 10,
         .max_depth = 50,
+
+        .vertical_fov = glm::radians(90.0f),
+        .look_from = vec3(-2.0, 2.0, 1.0),
+        .look_at = vec3(0.0, 0.0, -1.0),
+        .up = vec3(0.0, 1.0, 0.0),
     });
 
     auto material_ground = std::make_shared<Lambertian>(vec3(0.8, 0.8, 0.0));
