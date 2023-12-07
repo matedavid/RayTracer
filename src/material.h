@@ -42,3 +42,16 @@ class Metal : public IMaterial {
     vec3 m_albedo;
     double m_fuzz;
 };
+
+class Dielectric : public IMaterial {
+  public:
+    explicit Dielectric(double refraction_index);
+    ~Dielectric() override = default;
+
+    [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
+
+  private:
+    double m_refraction_index;
+
+    [[nodiscard]] static double reflectance(double cosine, double ref_idx);
+};

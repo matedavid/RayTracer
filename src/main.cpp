@@ -3,7 +3,7 @@
 #include "hittable.h"
 #include "material.h"
 
-constexpr uint32_t IMAGE_WIDTH = 1920;
+constexpr uint32_t IMAGE_WIDTH = 400;
 constexpr uint32_t IMAGE_HEIGHT = static_cast<uint32_t>(IMAGE_WIDTH / (16.0f / 9.0f));
 
 int main() {
@@ -13,14 +13,14 @@ int main() {
         .focal_length = 1.0,
         .vertical_fov = glm::radians(90.0f),
         .center = glm::vec3(0.0f),
-        .samples_per_pixel = 40,
+        .samples_per_pixel = 10,
         .max_depth = 50,
     });
 
     auto material_ground = std::make_shared<Lambertian>(vec3(0.8, 0.8, 0.0));
-    auto material_center = std::make_shared<Lambertian>(vec3(0.7, 0.3, 0.3));
-    auto material_left = std::make_shared<Metal>(vec3(0.8, 0.8, 0.8), 0.3);
-    auto material_right = std::make_shared<Metal>(vec3(0.8, 0.6, 0.2), 1.0);
+    auto material_center = std::make_shared<Lambertian>(vec3(0.1, 0.2, 0.5));
+    auto material_left = std::make_shared<Dielectric>(1.5);
+    auto material_right = std::make_shared<Metal>(vec3(0.8, 0.6, 0.2), 0.0);
 
     HittableList scene;
 
