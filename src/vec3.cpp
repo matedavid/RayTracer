@@ -35,3 +35,7 @@ bool vec3_near_zero(const vec3& v) {
     auto s = 1e-8;
     return (fabs(v.x) < s) && (fabs(v.y) < s) && (fabs(v.z) < s);
 }
+
+vec3 vec3_reflect(const vec3& v, const vec3& n) {
+    return v - 2.0 * glm::dot(v, n) * n;
+}

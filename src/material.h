@@ -22,11 +22,23 @@ class IMaterial {
 
 class Lambertian : public IMaterial {
   public:
-    Lambertian(vec3 color);
+    explicit Lambertian(vec3 albedo);
     ~Lambertian() override = default;
 
     [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
 
   private:
-    vec3 m_color;
+    vec3 m_albedo;
+};
+
+class Metal : public IMaterial {
+  public:
+    explicit Metal(vec3 albedo, double fuzz);
+    ~Metal() override = default;
+
+    [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
+
+  private:
+    vec3 m_albedo;
+    double m_fuzz;
 };

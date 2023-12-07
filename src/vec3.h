@@ -13,3 +13,5 @@ vec3 vec3_random_unit();
 vec3 random_on_hemisphere(const vec3& normal);
 
 bool vec3_near_zero(const vec3& v);
+
+vec3 vec3_reflect(const vec3& v, const vec3& n);
