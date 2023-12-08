@@ -10,7 +10,7 @@ class interval {
     static constexpr double infinity = std::numeric_limits<double>::infinity();
 
     constexpr interval() : min(-infinity), max(infinity) {}
-    constexpr interval(double min, double max) : min(min), max(max) {}
+    constexpr interval(double min_, double max_) : min(min_), max(max_) {}
 
     [[nodiscard]] inline bool contains(double x) const { return min <= x && x <= max; }
 

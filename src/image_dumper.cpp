@@ -9,12 +9,12 @@ PPMImageDumper::PPMImageDumper(uint32_t width, uint32_t height) : m_width(width)
 }
 
 std::vector<vec3>& PPMImageDumper::operator[](std::size_t row) {
-    assert(row >= 0 && row < m_height);
+    assert(row < m_height);
     return m_data[row];
 }
 
 const std::vector<vec3>& PPMImageDumper::operator[](std::size_t row) const {
-    assert(row >= 0 && row < m_height);
+    assert(row < m_height);
     return m_data[row];
 }
 

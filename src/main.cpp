@@ -70,7 +70,7 @@ int main() {
     const RayTracer ray_tracer({
         .samples_per_pixel = 10,
         .max_depth = 20,
-        .num_threads = 1,
+        .num_threads = 8,
     });
 
     ray_tracer.render(camera, scene, image);

@@ -3,6 +3,7 @@
 #include <cassert>
 #include <iostream>
 #include <chrono>
+#include <omp.h>
 
 #include "camera.h"
 #include "hittable.h"
@@ -12,7 +13,12 @@
 #include "interval.h"
 #include "material.h"
 
-RayTracer::RayTracer(Description description) : m_desc(description) {}
+RayTracer::RayTracer(Description description) : m_desc(description) {
+    if (m_desc.num_threads == 0)
+        m_desc.num_threads = 1;
+
+    m_desc.num_threads = std::min(m_desc.num_threads, static_cast<uint32_t>(omp_get_max_threads()));
+}
 
 void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumper& image) const {
     assert(camera.width() == image.width() && camera.height() == image.height());
@@ -21,11 +27,25 @@ void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumpe
     const auto& [delta_u, delta_v] = camera.deltas();
     const auto& pixel00_loc = camera.pixel00_location();
 
+    // Log information
+    std::cout << "RayTracer information:\n";
+    std::cout << "    Width: " << camera.width() << "\n";
+    std::cout << "    Height: " << camera.height() << "\n";
+    std::cout << "    Samples per pixel: " << m_desc.samples_per_pixel << "\n";
+    std::cout << "    Max Depth: " << m_desc.max_depth << "\n";
+    std::cout << "    Num Threads: " << m_desc.num_threads << "\n";
+    std::cout << "\n";
+
+    // Render
+    omp_set_num_threads(static_cast<int>(m_desc.num_threads));
+
     const auto start = std::chrono::high_resolution_clock::now();
 
+#pragma omp parallel for
     for (std::size_t row = 0; row < camera.height(); ++row) {
+        // TODO: Progress indicator broken for parallelized code
         if (row % 100 == 0)
-            std::cout << "Progress: " << uint32_t((float(row + 1) / float(camera.height())) * 100.0f) << "%\n";
+            std::cout << "[Progress]: " << uint32_t((float(row + 1) / float(camera.height())) * 100.0f) << "%\n";
 
         for (std::size_t col = 0; col < camera.width(); ++col) {
             const auto drow = static_cast<double>(row);
@@ -55,7 +75,8 @@ void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumpe
     const auto end = std::chrono::high_resolution_clock::now();
     const auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
 
-    std::cout << "Execution time: " << duration << "\n";
+    std::cout << "\n";
+    std::cout << "Execution time: " << duration.count() << "s\n";
 }
 
 vec3 RayTracer::ray_color_r(const Ray& ray, const IHittable& scene, uint32_t depth) {
