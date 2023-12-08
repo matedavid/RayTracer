@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Create executable
 add_executable(${PROJECT_NAME})
 
-target_compile_options(${PROJECT_NAME} BEFORE PRIVATE -Wall -Wpedantic -Wextra -Wshadow -Wconversion -Werror)
+target_compile_options(${PROJECT_NAME} BEFORE PRIVATE -Wall -Wpedantic -Wextra -Wshadow -Wconversion -Werror -fopenmp)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 
@@ -19,9 +19,11 @@ target_sources(${PROJECT_NAME} PRIVATE
 
         src/camera.cpp
         src/hittable.cpp
+        src/image_dumper.cpp
         src/material.cpp
         src/rand.cpp
         src/ray.cpp
+        src/ray_tracer.cpp
         src/vec3.cpp
 )
 
@@ -39,4 +41,13 @@ FetchContent_Declare(
         GIT_TAG 0.9.9.8
 )
 FetchContent_MakeAvailable(glm)
-target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
+target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
+
+
+# OpenMP
+find_package(OpenMP REQUIRED)
+
+if (OpenMP_FOUND)
+    target_compile_options(${PROJECT_NAME} PRIVATE ${OpenMP_CXX_FLAGS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
+endif ()

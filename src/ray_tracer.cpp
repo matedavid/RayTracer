@@ -1,0 +1,89 @@
+#include "ray_tracer.h"
+
+#include <cassert>
+#include <iostream>
+#include <chrono>
+
+#include "camera.h"
+#include "hittable.h"
+#include "image_dumper.h"
+#include "ray.h"
+#include "rand.h"
+#include "interval.h"
+#include "material.h"
+
+RayTracer::RayTracer(Description description) : m_desc(description) {}
+
+void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumper& image) const {
+    assert(camera.width() == image.width() && camera.height() == image.height());
+
+    const auto scale = 1.0 / m_desc.samples_per_pixel;
+    const auto& [delta_u, delta_v] = camera.deltas();
+    const auto& pixel00_loc = camera.pixel00_location();
+
+    const auto start = std::chrono::high_resolution_clock::now();
+
+    for (std::size_t row = 0; row < camera.height(); ++row) {
+        if (row % 100 == 0)
+            std::cout << "Progress: " << uint32_t((float(row + 1) / float(camera.height())) * 100.0f) << "%\n";
+
+        for (std::size_t col = 0; col < camera.width(); ++col) {
+            const auto drow = static_cast<double>(row);
+            const auto dcol = static_cast<double>(col);
+
+            const auto pixel_center = pixel00_loc + delta_u * dcol + delta_v * drow;
+
+            vec3 color{0.0};
+            for (std::size_t s = 0; s < m_desc.samples_per_pixel; ++s) {
+                const auto pixel_sample = pixel_center + pixel_sample_square(delta_u, delta_v);
+                const auto direction = pixel_sample - camera.center();
+
+                const auto ray = Ray(camera.center(), direction);
+                color += ray_color_r(ray, scene, m_desc.max_depth);
+            }
+
+            color *= scale;
+
+            auto r = linear_to_gamma(color.r);
+            auto g = linear_to_gamma(color.g);
+            auto b = linear_to_gamma(color.b);
+
+            image[row][col] = vec3(r, g, b);
+        }
+    }
+
+    const auto end = std::chrono::high_resolution_clock::now();
+    const auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+
+    std::cout << "Execution time: " << duration << "\n";
+}
+
+vec3 RayTracer::ray_color_r(const Ray& ray, const IHittable& scene, uint32_t depth) {
+    if (depth == 0)
+        return vec3{0.0};
+
+    const auto record = scene.hits(ray, interval(0.001, interval::infinity));
+    if (record) {
+        const auto material_hit = record->material->scatter(ray, *record);
+        if (material_hit) {
+            return material_hit->attenuation * ray_color_r(material_hit->scatter, scene, depth - 1);
+        }
+
+        return vec3{0.0};
+    }
+
+    // Sky
+    const vec3 unit_direction = glm::normalize(ray.direction());
+    const auto a = 0.5 * (unit_direction.y + 1.0);
+    return (1.0 - a) * vec3(1.0) + a * vec3(0.5f, 0.7f, 1.0f);
+}
+
+vec3 RayTracer::pixel_sample_square(const vec3& delta_u, const vec3& delta_v) {
+    const auto px = -0.5 + random_double();
+    const auto py = -0.5 + random_double();
+    return (px * delta_u) + (py * delta_v);
+}
+
+double RayTracer::linear_to_gamma(double val) {
+    return glm::sqrt(val);
+}
