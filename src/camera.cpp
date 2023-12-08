@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <chrono>
 
 #include "ray.h"
 #include "rand.h"
@@ -38,6 +39,8 @@ void Camera::render(const IHittable& scene) const {
 
     const auto scale = 1.0 / m_desc.samples_per_pixel;
 
+    const auto start = std::chrono::high_resolution_clock::now();
+
     for (std::size_t col = 0; col < m_desc.height; ++col) {
         if (col % 100 == 0)
             std::cout << "Progress: " << uint32_t((float(col + 1) / float(m_desc.height)) * 100.0f) << "%\n";
@@ -68,6 +71,11 @@ void Camera::render(const IHittable& scene) const {
                  << " " << static_cast<int>(intensity.clamp(b) * 256.0) << "\n";
         }
     }
+
+    const auto end = std::chrono::high_resolution_clock::now();
+    const auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+
+    std::cout << "Execution time: " << duration << "\n";
 }
 
 vec3 Camera::ray_color_r(const Ray& ray, const IHittable& scene, uint32_t depth) {
