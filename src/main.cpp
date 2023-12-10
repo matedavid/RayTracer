@@ -1,5 +1,4 @@
 #include "camera.h"
-
 #include "hittable.h"
 #include "material.h"
 #include "image_dumper.h"
@@ -73,7 +72,9 @@ int main() {
         .num_threads = 8,
     });
 
-    ray_tracer.render(camera, scene, image);
+    const auto vbh_scene = BVHNode(scene);
+
+    ray_tracer.render(camera, vbh_scene, image);
 
     // Save image
     image.dump("output.ppm");

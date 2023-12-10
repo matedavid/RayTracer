@@ -18,6 +18,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 target_sources(${PROJECT_NAME} PRIVATE
         src/main.cpp
 
+        src/aabb.cpp
         src/camera.cpp
         src/hittable.cpp
         src/image_dumper.cpp

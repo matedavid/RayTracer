@@ -12,3 +12,8 @@ double random_double() {
 double random_double(double min, double max) {
     return (max - min) * s_distribution(s_generator) + min;
 }
+
+
+int32_t random_int(int32_t min, int32_t max) {
+    return static_cast<int32_t>(random_double(min, max + 1));
+}
