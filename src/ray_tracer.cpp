@@ -40,12 +40,15 @@ void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumpe
     omp_set_num_threads(static_cast<int>(m_desc.num_threads));
 
     const auto start = std::chrono::high_resolution_clock::now();
+    std::size_t progress = 0;
 
-#pragma omp parallel for
+    #pragma omp parallel for
     for (std::size_t row = 0; row < camera.height(); ++row) {
-        // TODO: Progress indicator broken for parallelized code
-        if (row % 100 == 0)
-            std::cout << "[Progress]: " << uint32_t((float(row + 1) / float(camera.height())) * 100.0f) << "%\n";
+        #pragma omp atomic
+        progress++;
+
+        if (progress % 100 == 0)
+            std::cout << "[Progress]: " << int(progress / float(camera.height()) * 100.0f) << "%\n";
 
         for (std::size_t col = 0; col < camera.width(); ++col) {
             const auto drow = static_cast<double>(row);

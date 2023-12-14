@@ -8,6 +8,8 @@
 constexpr uint32_t IMAGE_WIDTH = 400;
 constexpr uint32_t IMAGE_HEIGHT = static_cast<uint32_t>(IMAGE_WIDTH / (16.0f / 9.0f));
 
+void create_scene(HittableList& scene);
+
 int main() {
     // Define camera
     const Camera camera({
@@ -24,7 +26,26 @@ int main() {
 
     // Create scene
     HittableList scene;
+    create_scene(scene);
 
+    // Render
+    const RayTracer ray_tracer({
+        .samples_per_pixel = 10,
+        .max_depth = 20,
+        .num_threads = 8,
+    });
+
+    const auto vbh_scene = BVHNode(scene);
+
+    ray_tracer.render(camera, vbh_scene, image);
+
+    // Save image
+    image.dump("output.ppm");
+
+    return 0;
+}
+
+void create_scene(HittableList& scene) {
     auto ground_material = std::make_shared<Lambertian>(vec3(0.5, 0.5, 0.5));
     scene.add_hittable<Sphere>(vec3(0, -1000, 0), 1000, ground_material);
 
@@ -64,20 +85,4 @@ int main() {
 
     auto material3 = std::make_shared<Metal>(vec3(0.7, 0.6, 0.5), 0.0);
     scene.add_hittable<Sphere>(vec3(4, 1, 0), 1.0, material3);
-
-    // Render
-    const RayTracer ray_tracer({
-        .samples_per_pixel = 10,
-        .max_depth = 20,
-        .num_threads = 8,
-    });
-
-    const auto vbh_scene = BVHNode(scene);
-
-    ray_tracer.render(camera, vbh_scene, image);
-
-    // Save image
-    image.dump("output.ppm");
-
-    return 0;
 }
