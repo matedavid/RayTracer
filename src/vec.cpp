@@ -1,4 +1,4 @@
-#include "vec3.h"
+#include "vec.h"
 
 #include "rand.h"
 

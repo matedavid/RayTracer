@@ -26,7 +26,8 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/rand.cpp
         src/ray.cpp
         src/ray_tracer.cpp
-        src/vec3.cpp
+        src/vec.cpp
+        src/texture.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
@@ -45,6 +46,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glm)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
 
+# stb
+FetchContent_Declare(
+        stb
+        GIT_REPOSITORY https://github.com/nothings/stb.git
+)
+FetchContent_MakeAvailable(stb)
+target_include_directories(${PROJECT_NAME} PRIVATE ${stb_SOURCE_DIR})
 
 # OpenMP
 find_package(OpenMP REQUIRED)

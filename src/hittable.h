@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "vec3.h"
+#include "vec.h"
 #include "aabb.h"
 
 // Forward declarations

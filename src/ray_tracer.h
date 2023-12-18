@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "vec3.h"
+#include "vec.h"
 
 // Forward declarations
 class Camera;

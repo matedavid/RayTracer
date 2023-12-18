@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <vector>
 
-#include "vec3.h"
+#include "vec.h"
 
 class IImageDumper {
   public:
