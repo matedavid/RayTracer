@@ -2,8 +2,9 @@
 
 #include <optional>
 
-#include "vec3.h"
+#include "vec.h"
 #include "ray.h"
+#include "texture.h"
 
 // Forward declarations
 struct HitRecord;
@@ -23,12 +24,14 @@ class IMaterial {
 class Lambertian : public IMaterial {
   public:
     explicit Lambertian(vec3 albedo);
+    explicit Lambertian(std::shared_ptr<Texture> texture);
     ~Lambertian() override = default;
 
     [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
 
   private:
-    vec3 m_albedo;
+    vec3 m_albedo{};
+    std::shared_ptr<Texture> m_texture = nullptr;
 };
 
 class Metal : public IMaterial {

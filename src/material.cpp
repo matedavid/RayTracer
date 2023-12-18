@@ -2,12 +2,15 @@
 
 #include "hittable.h"
 #include "rand.h"
+#include "texture.h"
 
 //
 // Lambertian
 //
 
 Lambertian::Lambertian(vec3 albedo) : m_albedo(albedo) {}
+
+Lambertian::Lambertian(std::shared_ptr<Texture> texture) : m_texture(std::move(texture)) {}
 
 std::optional<MaterialHit> Lambertian::scatter([[maybe_unused]] const Ray& ray, const HitRecord& record) const {
     auto scatter_direction = record.normal + vec3_random_unit();
@@ -16,7 +19,7 @@ std::optional<MaterialHit> Lambertian::scatter([[maybe_unused]] const Ray& ray, 
 
     return MaterialHit{
         .scatter = Ray(record.point, scatter_direction),
-        .attenuation = m_albedo,
+        .attenuation = m_texture != nullptr ? m_texture->access(record.uv.x, record.uv.y) / 255.0 : m_albedo,
     };
 }
 

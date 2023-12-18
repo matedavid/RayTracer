@@ -15,6 +15,7 @@ class IMaterial;
 struct HitRecord {
     vec3 point;
     vec3 normal;
+    vec2 uv;
     double ts;
     bool front_face;
     std::shared_ptr<IMaterial> material;

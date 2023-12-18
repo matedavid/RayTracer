@@ -41,9 +41,17 @@ std::optional<HitRecord> Sphere::hits(const Ray& ray, const interval& ray_t) con
         }
     }
 
+    // Compute texture uv
+    const auto uv_point = ray.at(root);
+    const auto uv_direction = glm::normalize(m_position - uv_point);
+
+    const auto longitude = 0.5 + atan2(uv_direction.z, uv_direction.x) / (2.0 * M_PI);
+    const auto latitude = 0.5 + asin(uv_direction.y) / M_PI;
+
     HitRecord record{};
     record.ts = root;
     record.point = ray.at(record.ts);
+    record.uv = vec2(longitude, latitude);
     record.material = m_material;
 
     const auto outward_normal = (record.point - m_position) / m_radius;
