@@ -17,9 +17,13 @@ FetchContent_MakeAvailable(Catch2)
 
 add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+        hittable/sphere_tests.cpp
 )
 target_include_directories(${PROJECT_NAME} PRIVATE ../src/)
 target_link_libraries(${PROJECT_NAME} PRIVATE Catch2::Catch2WithMain)
 
 target_compile_options(${PROJECT_NAME} BEFORE PRIVATE -Wall -Wpedantic -Wextra -Wshadow -Wconversion -fopenmp)
+
+# Link RayTracer library
+target_link_libraries(${PROJECT_NAME} PRIVATE RayTracerLib)
+
