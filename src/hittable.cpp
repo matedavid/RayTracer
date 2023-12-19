@@ -15,6 +15,7 @@ void HitRecord::set_front_face(const Ray& ray, const vec3& outward_normal) {
 //
 // Sphere
 //
+
 Sphere::Sphere(vec3 position, double radius, std::shared_ptr<IMaterial> material)
       : m_position(position), m_radius(radius), m_material(std::move(material)) {
     const auto rvec3 = vec3(radius);
@@ -61,6 +62,71 @@ std::optional<HitRecord> Sphere::hits(const Ray& ray, const interval& ray_t) con
 }
 
 AABB Sphere::bounding_box() const {
+    return m_bounding_box;
+}
+
+//
+// Triangle
+//
+
+Triangle::Triangle(vec3 a, vec3 b, vec3 c) : m_a(a), m_b(b), m_c(c) {
+    const auto min = glm::min(glm::min(m_a, m_b), m_c);
+    const auto max = glm::max(glm::max(m_a, m_b), m_c);
+
+    m_bounding_box = AABB(min, max);
+    m_normal = glm::normalize(glm::cross(m_b - m_a, m_c - m_a));
+}
+
+std::optional<HitRecord> Triangle::hits(const Ray& ray, const interval& ray_t) const {
+    // Möller–Trumbore intersection algorithm:
+    // https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+
+    constexpr auto epsilon = std::numeric_limits<double>::epsilon();
+
+    const auto edge_1 = m_b - m_a;
+    const auto edge_2 = m_c - m_a;
+
+    const auto ray_cross_e2 = glm::cross(ray.direction(), edge_2);
+    const auto det = glm::dot(edge_1, ray_cross_e2);
+
+    if (det > -epsilon && det < epsilon) {
+        // Ray is parallel to triangle
+        return {};
+    }
+
+    const auto inv_det = 1.0 / det;
+    const auto s = ray.origin() - m_a;
+    const auto u = inv_det * glm::dot(s, ray_cross_e2);
+
+    if (u < 0 || u > 1)
+        return {};
+
+    const auto s_cross_e1 = glm::cross(s, edge_1);
+    const auto v = inv_det * glm::dot(ray.direction(), s_cross_e1);
+
+    if (v < 0 || u + v > 1)
+        return {};
+
+    // Find intersection point in triangle
+    const auto t = inv_det * glm::dot(edge_2, s_cross_e1);
+
+    if (t <= epsilon || !ray_t.surrounds(t)) {
+        // Line intersection but not ray intersection, or t is not inside ray_t limits
+        return {};
+    }
+
+    HitRecord record{};
+    record.ts = t;
+    record.point = ray.at(record.ts);
+    // TODO: record.uv = vec2();
+    // TODO: record.material = m_material;
+
+    record.set_front_face(ray, -m_normal);
+
+    return record;
+}
+
+AABB Triangle::bounding_box() const {
     return m_bounding_box;
 }
 
