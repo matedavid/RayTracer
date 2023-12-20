@@ -1,5 +1,0 @@
-#include <catch2/catch_all.hpp>
-
-TEST_CASE("Test 1", "[test1]") {
-    REQUIRE(1 == 1);
-}

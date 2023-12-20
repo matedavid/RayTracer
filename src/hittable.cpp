@@ -6,6 +6,8 @@
 #include "interval.h"
 #include "rand.h"
 
+#include <iostream>
+
 // HitRecord
 void HitRecord::set_front_face(const Ray& ray, const vec3& outward_normal) {
     front_face = glm::dot(ray.direction(), outward_normal) < 0.0;
@@ -69,12 +71,12 @@ AABB Sphere::bounding_box() const {
 // Triangle
 //
 
-Triangle::Triangle(vec3 a, vec3 b, vec3 c) : m_a(a), m_b(b), m_c(c) {
-    const auto min = glm::min(glm::min(m_a, m_b), m_c);
-    const auto max = glm::max(glm::max(m_a, m_b), m_c);
+Triangle::Triangle(Vertex a, Vertex b, Vertex c) : m_a(a), m_b(b), m_c(c) {
+    const auto min = glm::min(glm::min(m_a.pos, m_b.pos), m_c.pos);
+    const auto max = glm::max(glm::max(m_a.pos, m_b.pos), m_c.pos);
 
     m_bounding_box = AABB(min, max);
-    m_normal = glm::normalize(glm::cross(m_b - m_a, m_c - m_a));
+    m_normal = glm::normalize(glm::cross(m_b.pos - m_a.pos, m_c.pos - m_a.pos));
 }
 
 std::optional<HitRecord> Triangle::hits(const Ray& ray, const interval& ray_t) const {
@@ -83,8 +85,8 @@ std::optional<HitRecord> Triangle::hits(const Ray& ray, const interval& ray_t) c
 
     constexpr auto epsilon = std::numeric_limits<double>::epsilon();
 
-    const auto edge_1 = m_b - m_a;
-    const auto edge_2 = m_c - m_a;
+    const auto edge_1 = m_b.pos - m_a.pos;
+    const auto edge_2 = m_c.pos - m_a.pos;
 
     const auto ray_cross_e2 = glm::cross(ray.direction(), edge_2);
     const auto det = glm::dot(edge_1, ray_cross_e2);
@@ -95,7 +97,7 @@ std::optional<HitRecord> Triangle::hits(const Ray& ray, const interval& ray_t) c
     }
 
     const auto inv_det = 1.0 / det;
-    const auto s = ray.origin() - m_a;
+    const auto s = ray.origin() - m_a.pos;
     const auto u = inv_det * glm::dot(s, ray_cross_e2);
 
     if (u < 0 || u > 1)
@@ -115,10 +117,14 @@ std::optional<HitRecord> Triangle::hits(const Ray& ray, const interval& ray_t) c
         return {};
     }
 
+    // Compute texture uv
+    const auto w = 1.0 - u - v;
+    const auto texture_uv = w * m_a.uv + u * m_b.uv + v * m_c.uv;
+
     HitRecord record{};
     record.ts = t;
     record.point = ray.at(record.ts);
-    // TODO: record.uv = vec2();
+    record.uv = texture_uv;
     // TODO: record.material = m_material;
 
     record.set_front_face(ray, -m_normal);

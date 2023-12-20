@@ -49,14 +49,19 @@ class Sphere : public IHittable {
 
 class Triangle : public IHittable {
   public:
-    Triangle(vec3 a, vec3 b, vec3 c);
+    struct Vertex {
+        vec3 pos{};
+        vec2 uv{};
+    };
+
+    Triangle(Vertex a, Vertex b, Vertex c);
     ~Triangle() override = default;
 
     [[nodiscard]] std::optional<HitRecord> hits(const Ray& ray, const interval& ray_t) const override;
     [[nodiscard]] AABB bounding_box() const override;
 
   private:
-    vec3 m_a, m_b, m_c;
+    Vertex m_a, m_b, m_c;
     vec3 m_normal{};
     AABB m_bounding_box{};
 };

@@ -5,9 +5,9 @@
 
 TEST_CASE("Triangle bounding box correct", "[Hittable_Triangle]") {
     SECTION("Triangle facing z") {
-        const auto a = vec3(-2.0, -1.0, -1.0);
-        const auto b = vec3(2.0, -1.0, -1.0);
-        const auto c = vec3(0.0, 3.0, -1.0);
+        const auto a = Triangle::Vertex{.pos = vec3(-2.0, -1.0, -1.0)};
+        const auto b = Triangle::Vertex{.pos = vec3(2.0, -1.0, -1.0)};
+        const auto c = Triangle::Vertex{.pos = vec3(0.0, 3.0, -1.0)};
 
         Triangle triangle(a, b, c);
         const auto bbox = triangle.bounding_box();
@@ -23,9 +23,9 @@ TEST_CASE("Triangle bounding box correct", "[Hittable_Triangle]") {
     }
 
     SECTION("Triangle facing x") {
-        const auto a = vec3(3.0, 4.0, -1.0);
-        const auto b = vec3(3.0, 2.0, 1.0);
-        const auto c = vec3(3.0, 1.0, 0.0);
+        const auto a = Triangle::Vertex{.pos = vec3(3.0, 4.0, -1.0)};
+        const auto b = Triangle::Vertex{.pos = vec3(3.0, 2.0, 1.0)};
+        const auto c = Triangle::Vertex{.pos = vec3(3.0, 1.0, 0.0)};
 
         Triangle triangle(a, b, c);
         const auto bbox = triangle.bounding_box();
@@ -41,9 +41,9 @@ TEST_CASE("Triangle bounding box correct", "[Hittable_Triangle]") {
     }
 
     SECTION("Triangle facing y") {
-        const auto a = vec3(-2.0, -3.0, 4.0);
-        const auto b = vec3(-3.0, -3.0, -1.0);
-        const auto c = vec3(1.0, -3.0, 2.0);
+        const auto a = Triangle::Vertex{.pos = vec3(-2.0, -3.0, 4.0)};
+        const auto b = Triangle::Vertex{.pos = vec3(-3.0, -3.0, -1.0)};
+        const auto c = Triangle::Vertex{.pos = vec3(1.0, -3.0, 2.0)};
 
         Triangle triangle(a, b, c);
         const auto bbox = triangle.bounding_box();
@@ -60,7 +60,9 @@ TEST_CASE("Triangle bounding box correct", "[Hittable_Triangle]") {
 }
 
 TEST_CASE("Ray hits triangle in front", "[Hittable_Triangle]") {
-    Triangle triangle(vec3(-1.0, 0.0, 0.0), vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
+    Triangle triangle(Triangle::Vertex{.pos = vec3(-1.0, 0.0, 0.0)},
+                      Triangle::Vertex{.pos = vec3(1.0, 0.0, 0.0)},
+                      Triangle::Vertex{.pos = vec3(0.0, 1.0, 0.0)});
     Ray ray(vec3(0.0, 0.0, -1.0), vec3(0.0, 0.0, 1.0));
 
     const auto record = triangle.hits(ray, interval(0.0, interval::infinity));
@@ -71,7 +73,9 @@ TEST_CASE("Ray hits triangle in front", "[Hittable_Triangle]") {
 }
 
 TEST_CASE("Ray hits triangle in front from the back", "[Hittable_Triangle]") {
-    Triangle triangle(vec3(-1.0, 0.0, 0.0), vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
+    Triangle triangle(Triangle::Vertex{.pos = vec3(-1.0, 0.0, 0.0)},
+                      Triangle::Vertex{.pos = vec3(1.0, 0.0, 0.0)},
+                      Triangle::Vertex{.pos = vec3(0.0, 1.0, 0.0)});
     Ray ray(vec3(0.0, 0.0, 1.0), vec3(0.0, 0.0, -1.0));
 
     const auto record = triangle.hits(ray, interval(0.0, interval::infinity));
@@ -82,7 +86,9 @@ TEST_CASE("Ray hits triangle in front from the back", "[Hittable_Triangle]") {
 }
 
 TEST_CASE("Ray misses triangle diagonally", "[HitTriangle]") {
-    Triangle triangle(vec3(-1.0, 0.0, 0.0), vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
+    Triangle triangle(Triangle::Vertex{.pos = vec3(-1.0, 0.0, 0.0)},
+                      Triangle::Vertex{.pos = vec3(1.0, 0.0, 0.0)},
+                      Triangle::Vertex{.pos = vec3(0.0, 1.0, 0.0)});
     Ray ray(vec3(0.0, 1.0, 0.0), vec3(1.0, -1.0, 0.0));
 
     const auto record = triangle.hits(ray, interval(0.0, interval::infinity));
@@ -90,7 +96,9 @@ TEST_CASE("Ray misses triangle diagonally", "[HitTriangle]") {
 }
 
 TEST_CASE("Ray hits triangle interval", "[Hittable_Triangle]") {
-    Triangle triangle(vec3(-1.0, -1.0, 0.0), vec3(1.0, -1.0, 0.0), vec3(0.0, 1.0, 0.0));
+    Triangle triangle(Triangle::Vertex{.pos = vec3(-1.0, -1.0, 0.0)},
+                      Triangle::Vertex{.pos = vec3(1.0, -1.0, 0.0)},
+                      Triangle::Vertex{.pos = vec3(0.0, 1.0, 0.0)});
     Ray ray(vec3(0.0, 0.0, -1.0), vec3(0.0, 0.0, 1.0));
 
     const auto record = triangle.hits(ray, interval(0.0, 1.1));
@@ -99,7 +107,9 @@ TEST_CASE("Ray hits triangle interval", "[Hittable_Triangle]") {
 }
 
 TEST_CASE("Ray misses sphere because of interval", "[Hittable_Triangle]") {
-    Triangle triangle(vec3(-1.0, -1.0, 0.0), vec3(1.0, -1.0, 0.0), vec3(0.0, 1.0, 0.0));
+    Triangle triangle(Triangle::Vertex{.pos = vec3(-1.0, -1.0, 0.0)},
+                      Triangle::Vertex{.pos = vec3(1.0, -1.0, 0.0)},
+                      Triangle::Vertex{.pos = vec3(0.0, 1.0, 0.0)});
     Ray ray(vec3(0.0, 0.0, -1.0), vec3(0.0, 0.0, 1.0));
 
     const auto record = triangle.hits(ray, interval(0.0, 0.9));
