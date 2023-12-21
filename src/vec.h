@@ -2,8 +2,11 @@
 
 #include <glm/glm.hpp>
 
+using uvec3 = glm::uvec3;
+
 using vec2 = glm::dvec2;
 using vec3 = glm::dvec3;
+using vec4 = glm::dvec4;
 
 vec3 vec3_random();
 vec3 vec3_random(double min, double max);

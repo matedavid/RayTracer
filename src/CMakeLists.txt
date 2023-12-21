@@ -50,6 +50,21 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(stb)
 target_include_directories(${PROJECT_NAME} PRIVATE ${stb_SOURCE_DIR})
 
+# assimp
+FetchContent_Declare(
+        assimp
+        GIT_REPOSITORY https://github.com/assimp/assimp
+        GIT_TAG v5.3.1
+)
+
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(assimp)
+target_link_libraries(${PROJECT_NAME} PUBLIC assimp::assimp)
+
 # OpenMP
 find_package(OpenMP REQUIRED)
 

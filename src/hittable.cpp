@@ -2,11 +2,16 @@
 
 #include <algorithm>
 
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
 #include "ray.h"
 #include "interval.h"
 #include "rand.h"
-
-#include <iostream>
+#include "material.h"
 
 // HitRecord
 void HitRecord::set_front_face(const Ray& ray, const vec3& outward_normal) {
@@ -71,12 +76,13 @@ AABB Sphere::bounding_box() const {
 // Triangle
 //
 
-Triangle::Triangle(Vertex a, Vertex b, Vertex c) : m_a(a), m_b(b), m_c(c) {
+Triangle::Triangle(Vertex a, Vertex b, Vertex c, std::shared_ptr<IMaterial> material)
+      : m_a(a), m_b(b), m_c(c), m_material(std::move(material)) {
     const auto min = glm::min(glm::min(m_a.pos, m_b.pos), m_c.pos);
     const auto max = glm::max(glm::max(m_a.pos, m_b.pos), m_c.pos);
 
     m_bounding_box = AABB(min, max);
-    m_normal = glm::normalize(glm::cross(m_b.pos - m_a.pos, m_c.pos - m_a.pos));
+    // m_normal = glm::normalize(glm::cross(m_b.pos - m_a.pos, m_c.pos - m_a.pos));
 }
 
 std::optional<HitRecord> Triangle::hits(const Ray& ray, const interval& ray_t) const {
@@ -121,19 +127,162 @@ std::optional<HitRecord> Triangle::hits(const Ray& ray, const interval& ray_t) c
     const auto w = 1.0 - u - v;
     const auto texture_uv = w * m_a.uv + u * m_b.uv + v * m_c.uv;
 
+    // Compute normal
+    const auto outward_normal = w * m_a.normal + u * m_b.normal + v * m_c.normal;
+
     HitRecord record{};
     record.ts = t;
     record.point = ray.at(record.ts);
     record.uv = texture_uv;
-    // TODO: record.material = m_material;
+    record.material = m_material;
 
-    record.set_front_face(ray, -m_normal);
+    record.set_front_face(ray, outward_normal);
 
     return record;
 }
 
 AABB Triangle::bounding_box() const {
     return m_bounding_box;
+}
+
+//
+// Mesh
+//
+
+Mesh::Mesh(const std::vector<Triangle::Vertex>& vertices,
+           const std::vector<uvec3>& faces,
+           const std::shared_ptr<IMaterial>& material) {
+    auto max = vec3(std::numeric_limits<double>::min());
+    auto min = vec3(std::numeric_limits<double>::max());
+
+    for (const auto f : faces) {
+        const auto v1 = vertices[f.x];
+        const auto v2 = vertices[f.y];
+        const auto v3 = vertices[f.z];
+
+        max = glm::max(max, glm::max(glm::max(v1.pos, v2.pos), v3.pos));
+        min = glm::min(min, glm::min(glm::min(v1.pos, v2.pos), v3.pos));
+
+        m_faces.emplace_back(v1, v2, v3, material);
+    }
+
+    m_bounding_box = AABB(min, max);
+}
+
+std::optional<HitRecord> Mesh::hits(const Ray& ray, const interval& ray_t) const {
+    std::optional<HitRecord> record;
+    auto closest_max_t = ray_t.max;
+
+    for (const auto& face : m_faces) {
+        const auto r = face.hits(ray, interval(ray_t.min, closest_max_t));
+        if (r.has_value()) {
+            record = r;
+            closest_max_t = record->ts;
+        }
+    }
+
+    return record;
+}
+
+AABB Mesh::bounding_box() const {
+    return m_bounding_box;
+}
+
+//
+// Model
+//
+
+Model::Model(const std::filesystem::path& path) : Model(path, vec3(0.0), vec3(1.0), vec3(0.0)) {}
+
+Model::Model(const std::filesystem::path& path, vec3 translation, vec3 scale, vec3 rotation) {
+    auto transform = glm::dmat4(1.0);
+    transform = glm::translate(transform, translation);
+    transform = glm::scale(transform, scale);
+    transform = glm::rotate(transform, rotation.x, vec3(1.0, 0.0, 0.0));
+    transform = glm::rotate(transform, rotation.y, vec3(0.0, 1.0, 0.0));
+    transform = glm::rotate(transform, rotation.z, vec3(0.0, 0.0, 1.0));
+
+    Assimp::Importer importer;
+
+    const uint32_t flags = aiProcess_Triangulate | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph;
+    const auto scene = importer.ReadFile(path.c_str(), flags);
+    assert(scene); // TODO: UGLY
+
+    vec3 max = vec3(std::numeric_limits<double>::min());
+    vec3 min = vec3(std::numeric_limits<double>::max());
+
+    for (std::size_t i = 0; i < scene->mNumMeshes; ++i) {
+        const auto mesh = scene->mMeshes[i];
+        if (mesh->mNumVertices == 0)
+            continue;
+
+        load_mesh(mesh, transform);
+
+        const auto last_mesh = m_meshes.back();
+
+        max.x = glm::max(last_mesh->bounding_box().axis(0).max, max.x);
+        max.y = glm::max(last_mesh->bounding_box().axis(1).max, max.y);
+        max.z = glm::max(last_mesh->bounding_box().axis(2).max, max.z);
+
+        min.x = glm::min(last_mesh->bounding_box().axis(0).min, min.x);
+        min.y = glm::min(last_mesh->bounding_box().axis(1).min, min.y);
+        min.z = glm::min(last_mesh->bounding_box().axis(2).min, min.z);
+    }
+
+    m_bounding_box = AABB(min, max);
+}
+
+std::optional<HitRecord> Model::hits(const Ray& ray, const interval& ray_t) const {
+    std::optional<HitRecord> record;
+    auto closest_max_t = ray_t.max;
+
+    for (const auto& mesh : m_meshes) {
+        const auto r = mesh->hits(ray, interval(ray_t.min, closest_max_t));
+        if (r.has_value()) {
+            record = r;
+            closest_max_t = record->ts;
+        }
+    }
+
+    return record;
+}
+
+AABB Model::bounding_box() const {
+    return m_bounding_box;
+}
+
+static std::shared_ptr<IMaterial> s_sample_material = std::make_shared<Lambertian>(vec3(1.0, 0.0, 0.0));
+
+void Model::load_mesh(const aiMesh* mesh, const glm::dmat4& transform) {
+    assert(mesh->HasTextureCoords(0));
+
+    std::vector<Triangle::Vertex> vertices;
+    std::vector<uvec3> face_indices;
+
+    for (std::size_t v = 0; v < mesh->mNumVertices; ++v) {
+        const auto& vertex = mesh->mVertices[v];
+        const auto& uv = mesh->mTextureCoords[0][v];
+
+        auto tpos = transform * vec4(vertex.x, vertex.y, vertex.z, 1.0);
+        auto pos = vec3(tpos.x, tpos.y, tpos.z) / tpos.w;
+
+        auto normal = mesh->mNormals[v].Normalize();
+
+        vertices.push_back({
+            .pos = pos,
+            .uv = vec2(uv.x, uv.y),
+            .normal = vec3(normal.x, normal.y, normal.z),
+        });
+    }
+
+    for (std::size_t f = 0; f < mesh->mNumFaces; ++f) {
+        const auto& face = mesh->mFaces[f];
+        assert(face.mNumIndices == 3);
+
+        face_indices.emplace_back(face.mIndices[0], face.mIndices[1], face.mIndices[2]);
+    }
+
+    m_meshes.push_back(std::make_shared<Mesh>(vertices, face_indices, s_sample_material));
 }
 
 //

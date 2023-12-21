@@ -3,6 +3,7 @@
 #include <optional>
 #include <memory>
 #include <vector>
+#include <filesystem>
 
 #include "vec.h"
 #include "aabb.h"
@@ -11,6 +12,8 @@
 class Ray;
 class interval;
 class IMaterial;
+class aiScene;
+class aiMesh;
 
 struct HitRecord {
     vec3 point;
@@ -52,9 +55,10 @@ class Triangle : public IHittable {
     struct Vertex {
         vec3 pos{};
         vec2 uv{};
+        vec3 normal{};
     };
 
-    Triangle(Vertex a, Vertex b, Vertex c);
+    Triangle(Vertex a, Vertex b, Vertex c, std::shared_ptr<IMaterial> material);
     ~Triangle() override = default;
 
     [[nodiscard]] std::optional<HitRecord> hits(const Ray& ray, const interval& ray_t) const override;
@@ -62,8 +66,40 @@ class Triangle : public IHittable {
 
   private:
     Vertex m_a, m_b, m_c;
-    vec3 m_normal{};
+    std::shared_ptr<IMaterial> m_material;
     AABB m_bounding_box{};
+};
+
+class Mesh : public IHittable {
+  public:
+    Mesh(const std::vector<Triangle::Vertex>& vertices,
+         const std::vector<uvec3>& faces,
+         const std::shared_ptr<IMaterial>& material);
+    ~Mesh() override = default;
+
+    [[nodiscard]] std::optional<HitRecord> hits(const Ray& ray, const interval& ray_t) const override;
+    [[nodiscard]] AABB bounding_box() const override;
+
+  private:
+    std::vector<Triangle> m_faces;
+    AABB m_bounding_box;
+};
+
+class Model : public IHittable {
+  public:
+    explicit Model(const std::filesystem::path& path);
+    Model(const std::filesystem::path& path, vec3 translation, vec3 scale, vec3 rotation);
+
+    ~Model() override = default;
+
+    [[nodiscard]] std::optional<HitRecord> hits(const Ray& ray, const interval& ray_t) const override;
+    [[nodiscard]] AABB bounding_box() const override;
+
+  private:
+    std::vector<std::shared_ptr<Mesh>> m_meshes;
+    AABB m_bounding_box;
+
+    void load_mesh(const aiMesh* mesh, const glm::dmat4& transform);
 };
 
 class HittableList : public IHittable {
