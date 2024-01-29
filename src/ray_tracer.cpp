@@ -71,6 +71,8 @@ void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumpe
             auto g = linear_to_gamma(color.g);
             auto b = linear_to_gamma(color.b);
 
+            assert(!std::isnan(r) && !std::isnan(g) && !std::isnan(b));
+
             image[row][col] = vec3(r, g, b);
         }
     }

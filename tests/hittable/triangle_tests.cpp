@@ -110,7 +110,7 @@ TEST_CASE("Ray hits triangle interval", "[Hittable_Triangle]") {
     REQUIRE(record->ts == 1.0);
 }
 
-TEST_CASE("Ray misses sphere because of interval", "[Hittable_Triangle]") {
+TEST_CASE("Ray misses triangle because of interval", "[Hittable_Triangle]") {
     Triangle triangle(Triangle::Vertex{.pos = vec3(-1.0, -1.0, 0.0)},
                       Triangle::Vertex{.pos = vec3(1.0, -1.0, 0.0)},
                       Triangle::Vertex{.pos = vec3(0.0, 1.0, 0.0)},
@@ -119,4 +119,28 @@ TEST_CASE("Ray misses sphere because of interval", "[Hittable_Triangle]") {
 
     const auto record = triangle.hits(ray, interval(0.0, 0.9));
     REQUIRE(!record.has_value());
+}
+
+TEST_CASE("Correct triangle uv coordinates", "[Hittable_Triangle]") {
+    HittableList scene;
+    scene.add_hittable<Triangle>(Triangle::Vertex{.pos = {0.0, 1.0, 0.0}, .uv = {0.0, 0.0}},
+                                 Triangle::Vertex{.pos = {0.0, 0.0, 0.0}, .uv = {0.0, 1.0}},
+                                 Triangle::Vertex{.pos = {1.0, 0.0, 0.0}, .uv = {1.0, 1.0}},
+                                 nullptr);
+    scene.add_hittable<Triangle>(Triangle::Vertex{.pos = {1.0, 1.0, 0.0}, .uv = {1.0, 0.0}},
+                                 Triangle::Vertex{.pos = {0.0, 1.0, 0.0}, .uv = {0.0, 0.0}},
+                                 Triangle::Vertex{.pos = {1.0, 0.0, 0.0}, .uv = {1.0, 1.0}},
+                                 nullptr);
+
+    const auto record = scene.hits(Ray(vec3(0.5, 0.5, -1.0), vec3(0.0, 0.0, 1.0)), interval(0.0, interval::infinity));
+    REQUIRE(record.has_value());
+    REQUIRE(record->uv == vec2(0.5, 0.5));
+
+    const auto record2 = scene.hits(Ray(vec3(0.7, 0.5, -1.0), vec3(0.0, 0.0, 1.0)), interval(0.0, interval::infinity));
+    REQUIRE(record2.has_value());
+    REQUIRE(record2->uv == vec2(0.7, 0.5));
+
+    const auto record3 = scene.hits(Ray(vec3(0.5, 0.1, -1.0), vec3(0.0, 0.0, 1.0)), interval(0.0, interval::infinity));
+    REQUIRE(record3.has_value());
+    REQUIRE(record3->uv == vec2(0.5, 0.9));
 }

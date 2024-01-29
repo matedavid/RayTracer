@@ -19,7 +19,7 @@ std::optional<MaterialHit> Lambertian::scatter([[maybe_unused]] const Ray& ray, 
 
     return MaterialHit{
         .scatter = Ray(record.point, scatter_direction),
-        .attenuation = m_texture != nullptr ? m_texture->access(record.uv.x, record.uv.y) / 255.0 : m_albedo,
+        .attenuation = m_texture != nullptr ? m_texture->sample(record.uv.x, record.uv.y) : m_albedo,
     };
 }
 
@@ -33,7 +33,7 @@ std::optional<MaterialHit> Metal::scatter(const Ray& ray, const HitRecord& recor
     const auto reflected = glm::reflect(glm::normalize(ray.direction()), record.normal);
 
     const auto reflected_ray = Ray(record.point, reflected + m_fuzz * vec3_random_unit());
-    auto material_hit = MaterialHit{
+    const auto material_hit = MaterialHit{
         .scatter = reflected_ray,
         .attenuation = m_albedo,
     };
@@ -44,16 +44,16 @@ std::optional<MaterialHit> Metal::scatter(const Ray& ray, const HitRecord& recor
 Dielectric::Dielectric(double refraction_index) : m_refraction_index(refraction_index) {}
 
 std::optional<MaterialHit> Dielectric::scatter(const Ray& ray, const HitRecord& record) const {
-    double refraction_ratio = record.front_face ? (1.0 / m_refraction_index) : m_refraction_index;
+    const double refraction_ratio = record.front_face ? 1.0 / m_refraction_index : m_refraction_index;
 
     // const auto refracted = vec3_refract(glm::normalize(ray.direction()), record.normal, refraction_ratio);
 
     const auto direction_normalized = glm::normalize(ray.direction());
 
-    double cos_theta = fmin(glm::dot(-direction_normalized, record.normal), 1.0);
-    double sin_theta = glm::sqrt(1.0 - cos_theta * cos_theta);
+    const double cos_theta = fmin(glm::dot(-direction_normalized, record.normal), 1.0);
+    const double sin_theta = glm::sqrt(1.0 - cos_theta * cos_theta);
 
-    bool cannot_refract = refraction_ratio * sin_theta > 1.0;
+    const bool cannot_refract = refraction_ratio * sin_theta > 1.0;
 
     vec3 scatter_direction;
     if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double())

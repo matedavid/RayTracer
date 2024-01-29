@@ -204,12 +204,12 @@ Model::Model(const std::filesystem::path& path, vec3 translation, vec3 scale, ve
 
     Assimp::Importer importer;
 
-    const uint32_t flags = aiProcess_Triangulate | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph;
+    constexpr uint32_t flags = aiProcess_Triangulate | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph;
     const auto scene = importer.ReadFile(path.c_str(), flags);
     assert(scene); // TODO: UGLY
 
-    vec3 max = vec3(std::numeric_limits<double>::min());
-    vec3 min = vec3(std::numeric_limits<double>::max());
+    auto max = vec3(std::numeric_limits<double>::min());
+    auto min = vec3(std::numeric_limits<double>::max());
 
     for (std::size_t i = 0; i < scene->mNumMeshes; ++i) {
         const auto mesh = scene->mMeshes[i];
@@ -256,6 +256,7 @@ static std::shared_ptr<IMaterial> s_sample_material = std::make_shared<Lambertia
 void Model::load_mesh(const aiMesh* mesh, const glm::dmat4& transform) {
     assert(mesh->HasTextureCoords(0));
 
+    // Load mesh info
     std::vector<Triangle::Vertex> vertices;
     std::vector<uvec3> face_indices;
 
@@ -263,14 +264,14 @@ void Model::load_mesh(const aiMesh* mesh, const glm::dmat4& transform) {
         const auto& vertex = mesh->mVertices[v];
         const auto& uv = mesh->mTextureCoords[0][v];
 
-        auto tpos = transform * vec4(vertex.x, vertex.y, vertex.z, 1.0);
-        auto pos = vec3(tpos.x, tpos.y, tpos.z) / tpos.w;
+        const auto tpos = transform * vec4(vertex.x, vertex.y, vertex.z, 1.0);
+        const auto pos = vec3(tpos.x, tpos.y, tpos.z) / tpos.w;
 
-        auto normal = mesh->mNormals[v].Normalize();
+        const auto normal = mesh->mNormals[v].Normalize();
 
         vertices.push_back({
             .pos = pos,
-            .uv = vec2(uv.x, uv.y),
+            .uv = vec2(uv.x, 1.0 - uv.y),
             .normal = vec3(normal.x, normal.y, normal.z),
         });
     }

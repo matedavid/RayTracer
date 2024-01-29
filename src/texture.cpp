@@ -8,21 +8,23 @@
 
 Texture::Texture(const std::filesystem::path& path, Filtering filtering) : m_filtering(filtering) {
     int32_t width, height, channels;
-    auto* data = stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb);
+    auto* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+    assert(data != nullptr);
 
-    assert(channels == 3);
+    assert(channels == 4 || channels == 3);
 
     m_width = static_cast<uint32_t>(width);
     m_height = static_cast<uint32_t>(height);
     m_channels = static_cast<uint32_t>(channels);
 
-    m_data = std::vector<std::byte>(m_width * m_height * m_channels * sizeof(std::byte));
-    memcpy(m_data.data(), data, m_data.size());
+    const auto data_size = m_width * m_height * channels * sizeof(std::byte);
+    m_data = std::vector<std::byte>(data_size);
+    memcpy(m_data.data(), data, data_size);
 
     stbi_image_free(data);
 }
 
-vec3 Texture::access(double u, double v) const {
+vec3 Texture::sample(double u, double v) const {
     const auto u_pos = static_cast<double>(m_width - 1) * u;
     const auto v_pos = static_cast<double>(m_height - 1) * v;
 
@@ -47,8 +49,10 @@ vec3 Texture::access(double u, double v) const {
 }
 
 vec3 Texture::get_color_at(uint32_t u, uint32_t v) const {
-    const auto pos = u * m_width * m_channels + v * m_channels;
+    const auto pos = v * m_width * m_channels + u * m_channels;
     assert(pos < m_data.size());
 
-    return {m_data[pos], m_data[pos + 1], m_data[pos + 2]};
+    return {static_cast<double>(m_data[pos]) / 255.0,
+            static_cast<double>(m_data[pos + 1]) / 255.0,
+            static_cast<double>(m_data[pos + 2]) / 255.0};
 }

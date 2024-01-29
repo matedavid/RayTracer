@@ -18,7 +18,7 @@ class Texture {
     Texture(const std::filesystem::path& path, Filtering filtering);
     ~Texture() = default;
 
-    [[nodiscard]] vec3 access(double u, double v) const;
+    [[nodiscard]] vec3 sample(double u, double v) const;
 
     [[nodiscard]] uint32_t width() const { return m_width; }
     [[nodiscard]] uint32_t height() const { return m_height; }
