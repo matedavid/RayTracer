@@ -19,6 +19,7 @@ class IMaterial {
     virtual ~IMaterial() = default;
 
     [[nodiscard]] virtual std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const = 0;
+    [[nodiscard]] virtual std::optional<vec3> emitted(double u, double v) const { return {}; }
 };
 
 class Lambertian : public IMaterial {
@@ -57,4 +58,15 @@ class Dielectric : public IMaterial {
     double m_refraction_index;
 
     [[nodiscard]] static double reflectance(double cosine, double ref_idx);
+};
+
+class DiffuseEmissive : public IMaterial {
+  public:
+    explicit DiffuseEmissive(vec3 emission_color, double intensity);
+
+    [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
+    [[nodiscard]] std::optional<vec3> emitted(double u, double v) const override;
+
+  private:
+    vec3 m_color;
 };

@@ -5,7 +5,7 @@
 #include "rand.h"
 #include "ray_tracer.h"
 
-constexpr uint32_t IMAGE_WIDTH = 400;
+constexpr uint32_t IMAGE_WIDTH = 1920;
 constexpr uint32_t IMAGE_HEIGHT = static_cast<uint32_t>(IMAGE_WIDTH / (16.0f / 9.0f));
 
 void create_scene(HittableList& scene);
@@ -37,14 +37,17 @@ int main() {
     auto material3 = std::make_shared<Metal>(vec3(0.7, 0.6, 0.5), 0.0);
     scene.add_hittable<Sphere>(vec3(-4, 1, 0), 1.0, material3);
 
+    auto material4 = std::make_shared<DiffuseEmissive>(vec3(1.0), 4.0);
+    scene.add_hittable<Sphere>(vec3(2, 4, 0), 1.0, material4);
+
     auto ground_material = std::make_shared<Lambertian>(vec3(0.5, 0.5, 0.5));
     scene.add_hittable<Sphere>(vec3(0, -1000, 0), 1000, ground_material);
 
     // Render
     const RayTracer ray_tracer({
-        .samples_per_pixel = 10,
-        .max_depth = 20,
-        .num_threads = 1,
+        .samples_per_pixel = 100,
+        .max_depth = 50,
+        .num_threads = 8,
     });
 
     const auto bvh_scene = BVHNode(scene);

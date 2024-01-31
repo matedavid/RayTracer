@@ -73,3 +73,18 @@ double Dielectric::reflectance(double cosine, double ref_idx) {
     r0 = r0 * r0;
     return r0 + (1 - r0) * glm::pow((1 - cosine), 5);
 }
+
+//
+// DiffuseEmissive
+//
+
+DiffuseEmissive::DiffuseEmissive(vec3 emission_color, double intensity) : m_color(emission_color * intensity) {}
+
+std::optional<MaterialHit> DiffuseEmissive::scatter([[maybe_unused]] const Ray& ray,
+                                                    [[maybe_unused]] const HitRecord& record) const {
+    return {};
+}
+
+std::optional<vec3> DiffuseEmissive::emitted([[maybe_unused]] double u, [[maybe_unused]] double v) const {
+    return m_color;
+}
