@@ -5,7 +5,7 @@
 #include "rand.h"
 #include "ray_tracer.h"
 
-constexpr uint32_t IMAGE_WIDTH = 1920;
+constexpr uint32_t IMAGE_WIDTH = 600;
 constexpr uint32_t IMAGE_HEIGHT = static_cast<uint32_t>(IMAGE_WIDTH / (16.0f / 9.0f));
 
 void create_scene(HittableList& scene);
@@ -28,13 +28,15 @@ int main() {
     HittableList scene;
     // create_scene(scene);
 
-    auto material1 = std::make_shared<Dielectric>(1.5);
+    // auto material1 = std::make_shared<Dielectric>(1.5);
+    auto material1 = std::make_shared<Lambertian>(vec3(0.0, 1.0, 0.0));
     scene.add_hittable<Sphere>(vec3(0, 1, 0), 1.0, material1);
 
     auto material2 = std::make_shared<Lambertian>(vec3(1.0, 0.0, 0.0));
     scene.add_hittable<Sphere>(vec3(4, 1, 0), 1.0, material2);
 
-    auto material3 = std::make_shared<Metal>(vec3(0.7, 0.6, 0.5), 0.0);
+    // auto material3 = std::make_shared<Metal>(vec3(0.7, 0.6, 0.5), 0.0);
+    auto material3 = std::make_shared<Lambertian>(vec3(0.0, 0.0, 1.0));
     scene.add_hittable<Sphere>(vec3(-4, 1, 0), 1.0, material3);
 
     auto material4 = std::make_shared<DiffuseEmissive>(vec3(1.0), 4.0);
@@ -46,7 +48,7 @@ int main() {
     // Render
     const RayTracer ray_tracer({
         .samples_per_pixel = 100,
-        .max_depth = 50,
+        .max_depth = 10,
         .num_threads = 8,
     });
 

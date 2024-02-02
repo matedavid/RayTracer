@@ -12,6 +12,7 @@ struct HitRecord;
 struct MaterialHit {
     Ray scatter;
     vec3 attenuation;
+    double pdf;
 };
 
 class IMaterial {
@@ -20,6 +21,11 @@ class IMaterial {
 
     [[nodiscard]] virtual std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const = 0;
     [[nodiscard]] virtual std::optional<vec3> emitted(double u, double v) const { return {}; }
+    [[nodiscard]] virtual double scattering_pdf([[maybe_unused]] const Ray& ray,
+                                                [[maybe_unused]] const HitRecord& record,
+                                                [[maybe_unused]] const Ray& scattered) const {
+        return 0.0;
+    }
 };
 
 class Lambertian : public IMaterial {
@@ -29,6 +35,7 @@ class Lambertian : public IMaterial {
     ~Lambertian() override = default;
 
     [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
+    [[nodiscard]] double scattering_pdf(const Ray& ray, const HitRecord& record, const Ray& scattered) const override;
 
   private:
     vec3 m_albedo{};

@@ -15,5 +15,6 @@ vec3 vec3_random_in_unit_sphere();
 vec3 vec3_random_unit();
 
 vec3 random_on_hemisphere(const vec3& normal);
+vec3 random_cosine_direction();
 
 bool vec3_near_zero(const vec3& v);

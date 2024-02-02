@@ -3,6 +3,7 @@
 #include "hittable.h"
 #include "rand.h"
 #include "texture.h"
+#include "onb.h"
 
 //
 // Lambertian
@@ -13,14 +14,23 @@ Lambertian::Lambertian(vec3 albedo) : m_albedo(albedo) {}
 Lambertian::Lambertian(std::shared_ptr<Texture> texture) : m_texture(std::move(texture)) {}
 
 std::optional<MaterialHit> Lambertian::scatter([[maybe_unused]] const Ray& ray, const HitRecord& record) const {
-    auto scatter_direction = record.normal + vec3_random_unit();
-    if (vec3_near_zero(scatter_direction))
-        scatter_direction = record.normal;
+    ONB uvw{};
+    uvw.build_from_w(record.normal);
+
+    const auto scatter_direction = uvw.local(random_cosine_direction());
 
     return MaterialHit{
         .scatter = Ray(record.point, scatter_direction),
         .attenuation = m_texture != nullptr ? m_texture->sample(record.uv.x, record.uv.y) : m_albedo,
+        .pdf = glm::dot(uvw.w(), scatter_direction) / M_PI,
     };
+}
+
+double Lambertian::scattering_pdf([[maybe_unused]] const Ray& ray,
+                                  [[maybe_unused]] const HitRecord& record,
+                                  [[maybe_unused]] const Ray& scattered) const {
+    const auto cos_theta = glm::dot(record.normal, glm::normalize(scattered.direction()));
+    return cos_theta < 0.0 ? 0.0 : cos_theta / M_PI;
 }
 
 //
