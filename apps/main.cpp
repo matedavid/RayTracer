@@ -16,8 +16,8 @@ int main() {
     const Camera camera({
         .width = IMAGE_WIDTH,
         .height = IMAGE_HEIGHT,
-        .vertical_fov = glm::radians(60.0f),
-        .look_from = vec3(15.0, 10.0, 0.0),
+        .vertical_fov = glm::radians(40.0f),
+        .look_from = vec3(0.7, 0.6, 0.0),
         .look_at = vec3(0.0, 0.0, 0.0),
         .up = vec3(0.0, 1.0, 0.0),
     });
@@ -54,7 +54,7 @@ int main() {
     const RayTracer ray_tracer({
         .samples_per_pixel = 10,
         .max_depth = 5,
-        .num_threads = 12,
+        .num_threads = 7,
     });
 
     ray_tracer.render(camera, bvh_scene, image);
@@ -66,10 +66,10 @@ int main() {
 }
 
 void sponza_scene(HittableList& scene) {
-    scene.add_hittable<Model>("../../models/sponza.obj");
+    scene.add_hittable<Model>("../../models/sponza.obj", vec3(0.0), vec3(1.0), vec3(0.0));
 
     const auto light_material = std::make_shared<DiffuseEmissive>(vec3(1.0f), 5.0);
-    scene.add_hittable<Sphere>(vec3(0.0, 10.0, 0.0), 4.0, light_material);
+    scene.add_hittable<Sphere>(vec3(1.0, 2.0, 1.0), 1, light_material);
 }
 
 void create_scene(HittableList& scene) {
