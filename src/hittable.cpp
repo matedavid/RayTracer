@@ -251,7 +251,7 @@ AABB Model::bounding_box() const {
     return m_bounding_box;
 }
 
-static std::shared_ptr<IMaterial> s_sample_material = std::make_shared<Lambertian>(vec3(1.0, 0.0, 0.0));
+static std::shared_ptr<IMaterial> s_sample_material = std::make_shared<Lambertian>(vec3(0.18));
 
 void Model::load_mesh(const aiMesh* mesh, const glm::dmat4& transform) {
     assert(mesh->HasTextureCoords(0));

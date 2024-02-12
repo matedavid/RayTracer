@@ -42,12 +42,15 @@ void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumpe
     const auto start = std::chrono::high_resolution_clock::now();
     std::size_t progress = 0;
 
+    const auto update_progress_perc = 0.10;
+    const auto update_progress_val = static_cast<std::size_t>(camera.height() * update_progress_perc) + 1;
+
 #pragma omp parallel for
     for (std::size_t row = 0; row < camera.height(); ++row) {
 #pragma omp atomic
         progress++;
 
-        if (progress % 100 == 0)
+        if (progress % update_progress_val == 0)
             std::cout << "[Progress]: " << int(progress / float(camera.height()) * 100.0f) << "%\n";
 
         for (std::size_t col = 0; col < camera.width(); ++col) {
@@ -110,10 +113,10 @@ vec3 RayTracer::ray_color_r(const Ray& ray, const IHittable& scene, uint32_t dep
     }
 
     // Sky
-    // const vec3 unit_direction = glm::normalize(ray.direction());
-    // const auto a = 0.5 * (unit_direction.y + 1.0);
-    // return (1.0 - a) * vec3(1.0) + a * vec3(0.5f, 0.7f, 1.0f);
-    return vec3(0.0);
+    const vec3 unit_direction = glm::normalize(ray.direction());
+    const auto a = 0.5 * (unit_direction.y + 1.0);
+    return (1.0 - a) * vec3(1.0) + a * vec3(0.5f, 0.7f, 1.0f);
+    // return vec3(0.0);
 }
 
 vec3 RayTracer::pixel_sample_square(const vec3& delta_u, const vec3& delta_v) {

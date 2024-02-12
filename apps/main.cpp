@@ -5,9 +5,10 @@
 #include "rand.h"
 #include "ray_tracer.h"
 
-constexpr uint32_t IMAGE_WIDTH = 600;
+constexpr uint32_t IMAGE_WIDTH = 400;
 constexpr uint32_t IMAGE_HEIGHT = static_cast<uint32_t>(IMAGE_WIDTH / (16.0f / 9.0f));
 
+void sponza_scene(HittableList& scene);
 void create_scene(HittableList& scene);
 
 int main() {
@@ -15,8 +16,8 @@ int main() {
     const Camera camera({
         .width = IMAGE_WIDTH,
         .height = IMAGE_HEIGHT,
-        .vertical_fov = glm::radians(20.0f),
-        .look_from = vec3(13.0, 2.0, 3.0),
+        .vertical_fov = glm::radians(60.0f),
+        .look_from = vec3(15.0, 10.0, 0.0),
         .look_at = vec3(0.0, 0.0, 0.0),
         .up = vec3(0.0, 1.0, 0.0),
     });
@@ -26,8 +27,9 @@ int main() {
 
     // Create scene
     HittableList scene;
-    // create_scene(scene);
+    sponza_scene(scene);
 
+    /*
     // auto material1 = std::make_shared<Dielectric>(1.5);
     auto material1 = std::make_shared<Lambertian>(vec3(0.0, 1.0, 0.0));
     scene.add_hittable<Sphere>(vec3(0, 1, 0), 1.0, material1);
@@ -44,15 +46,16 @@ int main() {
 
     auto ground_material = std::make_shared<Lambertian>(vec3(0.5, 0.5, 0.5));
     scene.add_hittable<Sphere>(vec3(0, -1000, 0), 1000, ground_material);
+    */
+
+    const auto bvh_scene = BVHNode(scene);
 
     // Render
     const RayTracer ray_tracer({
-        .samples_per_pixel = 100,
-        .max_depth = 10,
-        .num_threads = 8,
+        .samples_per_pixel = 10,
+        .max_depth = 5,
+        .num_threads = 12,
     });
-
-    const auto bvh_scene = BVHNode(scene);
 
     ray_tracer.render(camera, bvh_scene, image);
 
@@ -60,6 +63,13 @@ int main() {
     image.dump("output.ppm");
 
     return 0;
+}
+
+void sponza_scene(HittableList& scene) {
+    scene.add_hittable<Model>("../../models/sponza.obj");
+
+    const auto light_material = std::make_shared<DiffuseEmissive>(vec3(1.0f), 5.0);
+    scene.add_hittable<Sphere>(vec3(0.0, 10.0, 0.0), 4.0, light_material);
 }
 
 void create_scene(HittableList& scene) {
