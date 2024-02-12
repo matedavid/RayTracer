@@ -208,47 +208,24 @@ Model::Model(const std::filesystem::path& path, vec3 translation, vec3 scale, ve
     const auto scene = importer.ReadFile(path.c_str(), flags);
     assert(scene); // TODO: UGLY
 
-    auto max = vec3(std::numeric_limits<double>::min());
-    auto min = vec3(std::numeric_limits<double>::max());
-
     for (std::size_t i = 0; i < scene->mNumMeshes; ++i) {
         const auto mesh = scene->mMeshes[i];
         if (mesh->mNumVertices == 0)
             continue;
 
         load_mesh(mesh, transform);
-
-        const auto last_mesh = m_meshes.back();
-
-        max.x = glm::max(last_mesh->bounding_box().axis(0).max, max.x);
-        max.y = glm::max(last_mesh->bounding_box().axis(1).max, max.y);
-        max.z = glm::max(last_mesh->bounding_box().axis(2).max, max.z);
-
-        min.x = glm::min(last_mesh->bounding_box().axis(0).min, min.x);
-        min.y = glm::min(last_mesh->bounding_box().axis(1).min, min.y);
-        min.z = glm::min(last_mesh->bounding_box().axis(2).min, min.z);
     }
 
-    m_bounding_box = AABB(min, max);
+    // Create BVH from meshes
+    m_root = std::make_unique<BVHNode>(m_meshes, 0, m_meshes.size());
 }
 
 std::optional<HitRecord> Model::hits(const Ray& ray, const interval& ray_t) const {
-    std::optional<HitRecord> record;
-    auto closest_max_t = ray_t.max;
-
-    for (const auto& mesh : m_meshes) {
-        const auto r = mesh->hits(ray, interval(ray_t.min, closest_max_t));
-        if (r.has_value()) {
-            record = r;
-            closest_max_t = record->ts;
-        }
-    }
-
-    return record;
+    return m_root->hits(ray, ray_t);
 }
 
 AABB Model::bounding_box() const {
-    return m_bounding_box;
+    return m_root->bounding_box();
 }
 
 static std::shared_ptr<IMaterial> s_sample_material = std::make_shared<Lambertian>(vec3(0.18));

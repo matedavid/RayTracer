@@ -1,7 +1,2 @@
-project(RayTracerPlayground LANGUAGES CXX)
-
-# Create library
-add_executable(${PROJECT_NAME} main.cpp)
-
-target_include_directories(${PROJECT_NAME} PRIVATE ../src/)
-target_link_libraries(${PROJECT_NAME} PRIVATE RayTracerLib)
+add_executable(RayTracerPlayground main.cpp)
+target_link_libraries(RayTracerPlayground PRIVATE RayTracerLib)

@@ -96,8 +96,8 @@ class Model : public IHittable {
     [[nodiscard]] AABB bounding_box() const override;
 
   private:
-    std::vector<std::shared_ptr<Mesh>> m_meshes;
-    AABB m_bounding_box;
+    std::vector<std::shared_ptr<IHittable>> m_meshes;
+    std::unique_ptr<IHittable> m_root;
 
     void load_mesh(const aiMesh* mesh, const glm::dmat4& transform);
 };

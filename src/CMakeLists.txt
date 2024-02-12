@@ -1,9 +1,5 @@
 project(RayTracerLib LANGUAGES CXX)
 
-# Project settings
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # Create library
 add_library(${PROJECT_NAME})
 
