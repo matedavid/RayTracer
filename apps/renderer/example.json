@@ -1,0 +1,66 @@
+{
+    "camera": {
+        "width": 1920,
+        "height": 1080,
+        "lookFrom": [
+            0,
+            2,
+            5
+        ],
+        "fov": 0.6981317
+    },
+    "scene": [
+        {
+            "type": "sphere",
+            "center": [
+                0,
+                0,
+                0
+            ],
+            "radius": 0.5,
+            "material": {
+                "type": "lambertian",
+                "albedo": [
+                    0.8,
+                    0.3,
+                    0.3
+                ]
+            }
+        },
+        {
+            "type": "sphere",
+            "center": [
+                0,
+                -100.5,
+                0
+            ],
+            "radius": 100,
+            "material": {
+                "type": "lambertian",
+                "albedo": [
+                    0.8,
+                    0.8,
+                    0
+                ]
+            }
+        },
+        {
+            "type": "sphere",
+            "center": [
+                1,
+                0,
+                0
+            ],
+            "radius": 0.5,
+            "material": {
+                "type": "metal",
+                "albedo": [
+                    0.8,
+                    0.6,
+                    0.2
+                ],
+                "fuzz": 0.3
+            }
+        }
+    ]
+}
