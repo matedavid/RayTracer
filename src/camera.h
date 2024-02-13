@@ -10,7 +10,7 @@ class Camera {
         uint32_t height = 1080;
 
         // Camera positioning
-        double vertical_fov = glm::radians(90.0f); // in radians
+        double vertical_fov = 90.0; // in degrees 
         vec3 look_from = vec3(0.0, 0.0, -1.0);
         vec3 look_at = vec3(0.0);
         vec3 up = vec3(0.0, 1.0, 0.0);

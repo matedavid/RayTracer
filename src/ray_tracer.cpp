@@ -97,11 +97,13 @@ vec3 RayTracer::ray_color_r(const Ray& ray, const IHittable& scene, uint32_t dep
 
         const auto material_hit = record->material->scatter(ray, *record);
         if (material_hit) {
-            const auto scattering_pdf = record->material->scattering_pdf(ray, *record, material_hit->scatter);
+            // const auto scattering_pdf = record->material->scattering_pdf(ray, *record, material_hit->scatter);
+            // const auto c =
+            //     material_hit->attenuation * scattering_pdf * ray_color_r(material_hit->scatter, scene, depth - 1);
+            // color += c / material_hit->pdf;
 
-            const auto c =
-                material_hit->attenuation * scattering_pdf * ray_color_r(material_hit->scatter, scene, depth - 1);
-            color += c / material_hit->pdf;
+            const auto c = material_hit->attenuation * ray_color_r(material_hit->scatter, scene, depth - 1);
+            color += c;
         }
 
         const auto emission_color = record->material->emitted(record->uv.x, record->uv.y);
@@ -116,7 +118,7 @@ vec3 RayTracer::ray_color_r(const Ray& ray, const IHittable& scene, uint32_t dep
     // const vec3 unit_direction = glm::normalize(ray.direction());
     // const auto a = 0.5 * (unit_direction.y + 1.0);
     // return (1.0 - a) * vec3(1.0) + a * vec3(0.5f, 0.7f, 1.0f);
-    return vec3(0.0);
+    return vec3{0.0};
 }
 
 vec3 RayTracer::pixel_sample_square(const vec3& delta_u, const vec3& delta_v) {

@@ -1,6 +1,9 @@
 #include "camera.h"
 
 Camera::Camera(Description description) : m_desc(description) {
+    // Change value of fov from degrees to radians
+    m_desc.vertical_fov = glm::radians(m_desc.vertical_fov);
+
     const auto aspect_ratio = static_cast<double>(m_desc.width) / static_cast<double>(m_desc.height);
 
     const auto focal_length = glm::length(m_desc.look_from - m_desc.look_at);
