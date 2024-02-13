@@ -16,8 +16,8 @@ int main() {
     const Camera camera({
         .width = IMAGE_WIDTH,
         .height = IMAGE_HEIGHT,
-        .vertical_fov = glm::radians(40.0f),
-        .look_from = vec3(0.7, 0.6, 0.0),
+        .vertical_fov = 60.0,
+        .look_from = vec3(0.75, 0.6, 0.0),
         .look_at = vec3(0.0, 0.0, 0.0),
         .up = vec3(0.0, 1.0, 0.0),
     });
@@ -29,32 +29,13 @@ int main() {
     HittableList scene;
     sponza_scene(scene);
 
-    /*
-    // auto material1 = std::make_shared<Dielectric>(1.5);
-    auto material1 = std::make_shared<Lambertian>(vec3(0.0, 1.0, 0.0));
-    scene.add_hittable<Sphere>(vec3(0, 1, 0), 1.0, material1);
-
-    auto material2 = std::make_shared<Lambertian>(vec3(1.0, 0.0, 0.0));
-    scene.add_hittable<Sphere>(vec3(4, 1, 0), 1.0, material2);
-
-    // auto material3 = std::make_shared<Metal>(vec3(0.7, 0.6, 0.5), 0.0);
-    auto material3 = std::make_shared<Lambertian>(vec3(0.0, 0.0, 1.0));
-    scene.add_hittable<Sphere>(vec3(-4, 1, 0), 1.0, material3);
-
-    auto material4 = std::make_shared<DiffuseEmissive>(vec3(1.0), 4.0);
-    scene.add_hittable<Sphere>(vec3(2, 4, 0), 1.0, material4);
-
-    auto ground_material = std::make_shared<Lambertian>(vec3(0.5, 0.5, 0.5));
-    scene.add_hittable<Sphere>(vec3(0, -1000, 0), 1000, ground_material);
-    */
-
     const auto bvh_scene = BVHNode(scene);
 
     // Render
     const RayTracer ray_tracer({
-        .samples_per_pixel = 10,
-        .max_depth = 5,
-        .num_threads = 7,
+        .samples_per_pixel = 400,
+        .max_depth = 50,
+        .num_threads = 12,
     });
 
     ray_tracer.render(camera, bvh_scene, image);
@@ -66,10 +47,10 @@ int main() {
 }
 
 void sponza_scene(HittableList& scene) {
-    scene.add_hittable<Model>("../../models/sponza.obj", vec3(0.0), vec3(1.0), vec3(0.0));
+    scene.add_hittable<Model>("../../models/sponza_multiple_meshes/sponza.obj", vec3(0.0), vec3(1.0), vec3(0.0));
 
     const auto light_material = std::make_shared<DiffuseEmissive>(vec3(1.0f), 5.0);
-    scene.add_hittable<Sphere>(vec3(1.0, 2.0, 1.0), 1, light_material);
+    scene.add_hittable<Sphere>(vec3(1.0, 2.0, 1.0), 0.3, light_material);
 }
 
 void create_scene(HittableList& scene) {

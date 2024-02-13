@@ -208,6 +208,29 @@ Model::Model(const std::filesystem::path& path, vec3 translation, vec3 scale, ve
     const auto scene = importer.ReadFile(path.c_str(), flags);
     assert(scene); // TODO: UGLY
 
+    auto max = vec3(std::numeric_limits<double>::min());
+    auto min = vec3(std::numeric_limits<double>::max());
+
+    for (std::size_t i = 0; i < scene->mNumMeshes; ++i) {
+        const auto mesh = scene->mMeshes[i];
+        if (mesh->mNumVertices == 0)
+            continue;
+
+        load_mesh(mesh, transform);
+
+        max = glm::max(m_meshes.back()->bounding_box().max(), max);
+        min = glm::min(m_meshes.back()->bounding_box().min(), min);
+    }
+
+    m_meshes.clear();
+
+    // Normalize
+    auto size = max - min;
+    auto center = (max + min) * 0.5;
+
+    transform = glm::scale(glm::dmat4(1.0), vec3(2.0 / glm::max(size.x, glm::max(size.y, size.z)))) *
+                glm::translate(glm::dmat4(1.0), -center);
+
     for (std::size_t i = 0; i < scene->mNumMeshes; ++i) {
         const auto mesh = scene->mMeshes[i];
         if (mesh->mNumVertices == 0)
