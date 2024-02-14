@@ -5,7 +5,7 @@
 #include "rand.h"
 #include "ray_tracer.h"
 
-constexpr uint32_t IMAGE_WIDTH = 400;
+constexpr uint32_t IMAGE_WIDTH = 600;
 constexpr uint32_t IMAGE_HEIGHT = static_cast<uint32_t>(IMAGE_WIDTH / (16.0f / 9.0f));
 
 void sponza_scene(HittableList& scene);
@@ -33,8 +33,8 @@ int main() {
 
     // Render
     const RayTracer ray_tracer({
-        .samples_per_pixel = 75,
-        .max_depth = 25,
+        .samples_per_pixel = 100,
+        .max_depth = 100,
         .num_threads = 12,
 
         .percentage_update_progress = 0.05,

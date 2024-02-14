@@ -26,8 +26,8 @@ int main(int32_t argc, const char* argv[]) {
     const auto bvh_scene = BVHNode(*parser->scene());
 
     const RayTracer ray_tracer({
-        .samples_per_pixel = 100,
-        .max_depth = 100,
+        .samples_per_pixel = 600,
+        .max_depth = 200,
         .num_threads = 12,
     });
 

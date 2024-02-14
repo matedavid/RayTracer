@@ -29,6 +29,15 @@ class RayTracer {
   private:
     Description m_desc;
 
+    struct RenderingInfo {
+        vec3 camera_center;
+        vec3 pixel00_loc;
+        vec3 delta_u, delta_v;
+        double scale;
+        IImageDumper& image;
+    };
+    void render_pixel(std::size_t row, std::size_t col, const IHittable& scene, const RenderingInfo& info) const;
+
     [[nodiscard]] static vec3 ray_color_r(const Ray& ray, const IHittable& scene, uint32_t depth);
     [[nodiscard]] static vec3 pixel_sample_square(const vec3& delta_u, const vec3& delta_v);
     [[nodiscard]] static double linear_to_gamma(double val);

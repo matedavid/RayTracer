@@ -42,40 +42,33 @@ void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumpe
     const auto start = std::chrono::high_resolution_clock::now();
     std::size_t progress = 0;
 
-    const auto update_progress_every = static_cast<std::size_t>(camera.height() * m_desc.percentage_update_progress);
+    const auto dimension = camera.height() * camera.width();
+    const auto update_progress_every = static_cast<std::size_t>(dimension * m_desc.percentage_update_progress);
 
-#pragma omp parallel for
+    const auto rendering_info = RenderingInfo{
+        .camera_center = camera.center(),
+        .pixel00_loc = pixel00_loc,
+        .delta_u = delta_u,
+        .delta_v = delta_v,
+        .scale = scale,
+        .image = image,
+    };
+
+    #pragma omp parallel
+    #pragma omp single
+    #pragma omp taskgroup
     for (std::size_t row = 0; row < camera.height(); ++row) {
-#pragma omp atomic
-        progress++;
-
-        if (progress % update_progress_every == 0)
-            std::cout << "[Progress]: " << int(progress / float(camera.height()) * 100.0f) << "%\n";
-
         for (std::size_t col = 0; col < camera.width(); ++col) {
-            const auto drow = static_cast<double>(row);
-            const auto dcol = static_cast<double>(col);
+            #pragma omp task
+            {
+                render_pixel(row, col, scene, rendering_info);
 
-            const auto pixel_center = pixel00_loc + delta_u * dcol + delta_v * drow;
+                #pragma omp atomic
+                progress++;
 
-            vec3 color{0.0};
-            for (std::size_t s = 0; s < m_desc.samples_per_pixel; ++s) {
-                const auto pixel_sample = pixel_center + pixel_sample_square(delta_u, delta_v);
-                const auto direction = pixel_sample - camera.center();
-
-                const auto ray = Ray(camera.center(), direction);
-                color += ray_color_r(ray, scene, m_desc.max_depth);
+                if (progress % update_progress_every == 0)
+                    std::cout << "[Progress]: " << int(progress / float(dimension) * 100.0f) << "%\n";
             }
-
-            color *= scale;
-
-            auto r = linear_to_gamma(color.r);
-            auto g = linear_to_gamma(color.g);
-            auto b = linear_to_gamma(color.b);
-
-            assert(!std::isnan(r) && !std::isnan(g) && !std::isnan(b));
-
-            image[row][col] = vec3(r, g, b);
         }
     }
 
@@ -84,6 +77,35 @@ void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumpe
 
     std::cout << "\n";
     std::cout << "Execution time: " << duration.count() << "s\n";
+}
+
+void RayTracer::render_pixel(std::size_t row,
+                             std::size_t col,
+                             const IHittable& scene,
+                             const RenderingInfo& info) const {
+    const auto drow = static_cast<double>(row);
+    const auto dcol = static_cast<double>(col);
+
+    const auto pixel_center = info.pixel00_loc + info.delta_u * dcol + info.delta_v * drow;
+
+    vec3 color{0.0};
+    for (std::size_t s = 0; s < m_desc.samples_per_pixel; ++s) {
+        const auto pixel_sample = pixel_center + pixel_sample_square(info.delta_u, info.delta_v);
+        const auto direction = pixel_sample - info.camera_center;
+
+        const auto ray = Ray(info.camera_center, direction);
+        color += ray_color_r(ray, scene, m_desc.max_depth);
+    }
+
+    color *= info.scale;
+
+    auto r = linear_to_gamma(color.r);
+    auto g = linear_to_gamma(color.g);
+    auto b = linear_to_gamma(color.b);
+
+    assert(!std::isnan(r) && !std::isnan(g) && !std::isnan(b));
+
+    info.image[row][col] = vec3(r, g, b);
 }
 
 vec3 RayTracer::ray_color_r(const Ray& ray, const IHittable& scene, uint32_t depth) {
