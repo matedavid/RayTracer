@@ -18,6 +18,7 @@ RayTracer::RayTracer(Description description) : m_desc(description) {
         m_desc.num_threads = 1;
 
     m_desc.num_threads = std::min(m_desc.num_threads, static_cast<uint32_t>(omp_get_max_threads()));
+    m_desc.percentage_update_progress = interval(0.01, 1.0).clamp(m_desc.percentage_update_progress);
 }
 
 void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumper& image) const {
@@ -36,14 +37,12 @@ void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumpe
     std::cout << "    Num Threads: " << m_desc.num_threads << "\n";
     std::cout << "\n";
 
-    // Render
     omp_set_num_threads(static_cast<int>(m_desc.num_threads));
 
     const auto start = std::chrono::high_resolution_clock::now();
     std::size_t progress = 0;
 
-    constexpr double update_progress_every_perc = 0.2;
-    const auto update_progress_every = static_cast<std::size_t>(camera.height() * update_progress_every_perc);
+    const auto update_progress_every = static_cast<std::size_t>(camera.height() * m_desc.percentage_update_progress);
 
 #pragma omp parallel for
     for (std::size_t row = 0; row < camera.height(); ++row) {

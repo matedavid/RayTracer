@@ -13,10 +13,13 @@ class IImageDumper;
 class RayTracer {
   public:
     struct Description {
+        // Rendering params
         uint32_t samples_per_pixel = 10;
         uint32_t max_depth = 10;
-
         uint32_t num_threads = 1;
+
+        // Log params
+        double percentage_update_progress = 0.2; // Displays progress every time it reaches the specified percentage
     };
 
     explicit RayTracer(Description description);

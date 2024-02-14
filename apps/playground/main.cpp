@@ -33,9 +33,11 @@ int main() {
 
     // Render
     const RayTracer ray_tracer({
-        .samples_per_pixel = 100,
+        .samples_per_pixel = 75,
         .max_depth = 25,
         .num_threads = 12,
+
+        .percentage_update_progress = 0.05,
     });
 
     ray_tracer.render(camera, bvh_scene, image);
