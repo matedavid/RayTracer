@@ -33,8 +33,8 @@ int main() {
 
     // Render
     const RayTracer ray_tracer({
-        .samples_per_pixel = 400,
-        .max_depth = 50,
+        .samples_per_pixel = 100,
+        .max_depth = 25,
         .num_threads = 12,
     });
 
@@ -50,7 +50,7 @@ void sponza_scene(HittableList& scene) {
     scene.add_hittable<Model>("../../models/sponza_multiple_meshes/sponza.obj", vec3(0.0), vec3(1.0), vec3(0.0));
 
     const auto light_material = std::make_shared<DiffuseEmissive>(vec3(1.0f), 5.0);
-    scene.add_hittable<Sphere>(vec3(1.0, 2.0, 1.0), 0.3, light_material);
+    scene.add_hittable<Sphere>(vec3(1.0, 2.0, 1.0), 0.7, light_material);
 }
 
 void create_scene(HittableList& scene) {
