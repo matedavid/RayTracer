@@ -40,10 +40,10 @@ void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumpe
     omp_set_num_threads(static_cast<int>(m_desc.num_threads));
 
     const auto start = std::chrono::high_resolution_clock::now();
-    std::size_t progress = 0;
+    uint32_t progress = 0;
 
     const auto dimension = camera.height() * camera.width();
-    const auto update_progress_every = static_cast<std::size_t>(dimension * m_desc.percentage_update_progress);
+    const auto update_progress_every = static_cast<uint32_t>(dimension * m_desc.percentage_update_progress);
 
     const auto rendering_info = RenderingInfo{
         .camera_center = camera.center(),
@@ -54,6 +54,12 @@ void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumpe
         .image = image,
     };
 
+    const auto get_elapsed_time = [&start]() {
+        const auto end = std::chrono::high_resolution_clock::now();
+        const auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+        return duration.count();
+    };
+
     #pragma omp parallel
     #pragma omp single
     #pragma omp taskgroup
@@ -61,28 +67,27 @@ void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumpe
         for (std::size_t col = 0; col < camera.width(); ++col) {
             #pragma omp task
             {
-                render_pixel(row, col, scene, rendering_info);
+                render_pixel({row, col}, scene, rendering_info);
 
                 #pragma omp atomic
                 progress++;
 
-                if (progress % update_progress_every == 0)
-                    std::cout << "[Progress]: " << int(progress / float(dimension) * 100.0f) << "%\n";
+                if (progress % update_progress_every == 0) {
+                    const auto progress_perc = static_cast<uint32_t>(progress / static_cast<double>(dimension) * 100.0);
+                    const auto elapsed = get_elapsed_time();
+                    std::cout << "[Progress]: " << progress_perc << "% - Elapsed: " << elapsed << "s\n";
+                }
             }
         }
     }
 
-    const auto end = std::chrono::high_resolution_clock::now();
-    const auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
-
     std::cout << "\n";
-    std::cout << "Execution time: " << duration.count() << "s\n";
+    std::cout << "Execution time: " << get_elapsed_time() << "s\n";
 }
 
-void RayTracer::render_pixel(std::size_t row,
-                             std::size_t col,
-                             const IHittable& scene,
-                             const RenderingInfo& info) const {
+void RayTracer::render_pixel(Position pixel, const IHittable& scene, const RenderingInfo& info) const {
+    const auto& [row, col] = pixel;
+
     const auto drow = static_cast<double>(row);
     const auto dcol = static_cast<double>(col);
 

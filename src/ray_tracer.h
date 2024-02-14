@@ -36,7 +36,9 @@ class RayTracer {
         double scale;
         IImageDumper& image;
     };
-    void render_pixel(std::size_t row, std::size_t col, const IHittable& scene, const RenderingInfo& info) const;
+
+    using Position = std::pair<std::size_t, std::size_t>;
+    void render_pixel(Position pixel, const IHittable& scene, const RenderingInfo& info) const;
 
     [[nodiscard]] static vec3 ray_color_r(const Ray& ray, const IHittable& scene, uint32_t depth);
     [[nodiscard]] static vec3 pixel_sample_square(const vec3& delta_u, const vec3& delta_v);

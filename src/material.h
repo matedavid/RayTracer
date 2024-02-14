@@ -20,7 +20,9 @@ class IMaterial {
     virtual ~IMaterial() = default;
 
     [[nodiscard]] virtual std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const = 0;
-    [[nodiscard]] virtual std::optional<vec3> emitted(double u, double v) const { return {}; }
+    [[nodiscard]] virtual std::optional<vec3> emitted([[maybe_unused]] double u, [[maybe_unused]] double v) const {
+        return {};
+    }
     [[nodiscard]] virtual double scattering_pdf([[maybe_unused]] const Ray& ray,
                                                 [[maybe_unused]] const HitRecord& record,
                                                 [[maybe_unused]] const Ray& scattered) const {

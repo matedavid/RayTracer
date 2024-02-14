@@ -18,8 +18,6 @@ int main(int32_t argc, const char* argv[]) {
     if (!parser)
         return 1;
 
-    const auto desc = parser->camera_description();
-
     Camera camera(parser->camera_description());
     PPMImageDumper image(camera.width(), camera.height());
 
