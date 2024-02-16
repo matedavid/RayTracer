@@ -2,10 +2,10 @@
 
 #include "scene_parser.h"
 
-#include "RayTracer/hittable.h"
-#include "RayTracer/camera.h"
-#include "RayTracer/ray_tracer.h"
-#include "RayTracer/image_dumper.h"
+#include "camera.h"
+#include "ray_tracer.h"
+#include "image_dumper.h"
+#include "hittable/bvh_node.h"
 
 int main(int32_t argc, const char* argv[]) {
     if (argc < 2) {
@@ -24,8 +24,8 @@ int main(int32_t argc, const char* argv[]) {
     const auto bvh_scene = BVHNode(*parser->scene());
 
     const RayTracer ray_tracer({
-        .samples_per_pixel = 600,
-        .max_depth = 200,
+        .samples_per_pixel = 100,
+        .max_depth = 50,
         .num_threads = RayTracer::max_num_threads(),
     });
 

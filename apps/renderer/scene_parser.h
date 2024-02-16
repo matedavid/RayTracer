@@ -4,7 +4,7 @@
 #include <optional>
 #include <memory>
 
-#include "RayTracer/camera.h"
+#include "camera.h"
 
 class HittableList;
 

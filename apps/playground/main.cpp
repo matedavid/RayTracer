@@ -1,9 +1,13 @@
-#include "RayTracer/camera.h"
-#include "RayTracer/hittable.h"
-#include "RayTracer/material.h"
-#include "RayTracer/image_dumper.h"
-#include "RayTracer/rand.h"
-#include "RayTracer/ray_tracer.h"
+#include "camera.h"
+#include "material.h"
+#include "image_dumper.h"
+#include "rand.h"
+#include "ray_tracer.h"
+
+#include "hittable/sphere.h"
+#include "hittable/model.h"
+#include "hittable/hittable_list.h"
+#include "hittable/bvh_node.h"
 
 constexpr uint32_t IMAGE_WIDTH = 600;
 constexpr uint32_t IMAGE_HEIGHT = static_cast<uint32_t>(IMAGE_WIDTH / (16.0f / 9.0f));
@@ -17,19 +21,19 @@ int main() {
         .width = IMAGE_WIDTH,
         .height = IMAGE_HEIGHT,
         .vertical_fov = 60.0,
-        .look_from = vec3(0.75, 0.6, 0.0),
+        .look_from = vec3(0.0, 4.0, 3.0),
         .look_at = vec3(0.0, 0.0, 0.0),
         .up = vec3(0.0, 1.0, 0.0),
     });
-
-    // Image dumper
-    PPMImageDumper image(IMAGE_WIDTH, IMAGE_HEIGHT);
 
     // Create scene
     HittableList scene;
     sponza_scene(scene);
 
     const auto bvh_scene = BVHNode(scene);
+
+    // Image dumper
+    PPMImageDumper image(IMAGE_WIDTH, IMAGE_HEIGHT);
 
     // Render
     const RayTracer ray_tracer({

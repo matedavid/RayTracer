@@ -1,8 +1,8 @@
 #include <catch2/catch_all.hpp>
 
 #include "aabb.h"
-#include "hittable.h"
 #include "ray.h"
+#include "hittable/sphere.h"
 
 TEST_CASE("Sphere bounding box correct", "[Hittable_Sphere]") {
     const auto x = GENERATE(take(5, random(-5.0, 5.0)));

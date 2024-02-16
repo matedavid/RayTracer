@@ -1,9 +1,9 @@
 #include "material.h"
 
-#include "hittable.h"
 #include "rand.h"
 #include "texture.h"
 #include "onb.h"
+#include "hittable/hittable.h"
 
 //
 // Lambertian

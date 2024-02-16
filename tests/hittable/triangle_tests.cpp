@@ -1,7 +1,9 @@
 #include <catch2/catch_all.hpp>
 
-#include "hittable.h"
 #include "ray.h"
+
+#include "hittable/triangle.h"
+#include "hittable/hittable_list.h"
 
 TEST_CASE("Triangle bounding box correct", "[Hittable_Triangle]") {
     SECTION("Triangle facing z") {

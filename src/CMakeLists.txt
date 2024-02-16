@@ -10,7 +10,6 @@ target_compile_options(${PROJECT_NAME} BEFORE PRIVATE -Wall -Wpedantic -Wextra -
 target_sources(${PROJECT_NAME} PRIVATE
         aabb.cpp
         camera.cpp
-        hittable.cpp
         image_dumper.cpp
         material.cpp
         rand.cpp
@@ -18,16 +17,17 @@ target_sources(${PROJECT_NAME} PRIVATE
         ray_tracer.cpp
         vec.cpp
         texture.cpp
+
+        # hittable
+        hittable/sphere.cpp
+        hittable/triangle.cpp
+        hittable/model.cpp
+        hittable/hittable_list.cpp
+        hittable/bvh_node.cpp
 )
 
 # Include directory for lib
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-
-# Create include directory for users
-file(GLOB HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
-file(COPY ${HEADER_FILES} DESTINATION ${CMAKE_BINARY_DIR}/include/RayTracer)
-
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_BINARY_DIR}/include/)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 #
 # Dependencies

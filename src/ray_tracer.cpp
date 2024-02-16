@@ -6,12 +6,12 @@
 #include <omp.h>
 
 #include "camera.h"
-#include "hittable.h"
 #include "image_dumper.h"
 #include "ray.h"
 #include "rand.h"
 #include "interval.h"
 #include "material.h"
+#include "hittable/hittable.h"
 
 RayTracer::RayTracer(Description description) : m_desc(description) {
     if (m_desc.num_threads == 0)
