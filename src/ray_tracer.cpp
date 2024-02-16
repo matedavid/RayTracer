@@ -17,8 +17,13 @@ RayTracer::RayTracer(Description description) : m_desc(description) {
     if (m_desc.num_threads == 0)
         m_desc.num_threads = 1;
 
-    m_desc.num_threads = std::min(m_desc.num_threads, static_cast<uint32_t>(omp_get_max_threads()));
+    m_desc.num_threads = std::min(m_desc.num_threads, max_num_threads());
     m_desc.percentage_update_progress = interval(0.01, 1.0).clamp(m_desc.percentage_update_progress);
+}
+
+uint32_t RayTracer::max_num_threads() 
+{
+    return static_cast<uint32_t>(omp_get_max_threads());
 }
 
 void RayTracer::render(const Camera& camera, const IHittable& scene, IImageDumper& image) const {

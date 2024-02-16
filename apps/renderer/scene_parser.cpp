@@ -7,8 +7,8 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-#include "hittable.h"
-#include "material.h"
+#include "RayTracer/hittable.h"
+#include "RayTracer/material.h"
 
 std::optional<SceneParser> SceneParser::parse(const std::filesystem::path& path) {
     if (!std::filesystem::exists(path)) {

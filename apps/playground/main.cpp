@@ -1,9 +1,9 @@
-#include "camera.h"
-#include "hittable.h"
-#include "material.h"
-#include "image_dumper.h"
-#include "rand.h"
-#include "ray_tracer.h"
+#include "RayTracer/camera.h"
+#include "RayTracer/hittable.h"
+#include "RayTracer/material.h"
+#include "RayTracer/image_dumper.h"
+#include "RayTracer/rand.h"
+#include "RayTracer/ray_tracer.h"
 
 constexpr uint32_t IMAGE_WIDTH = 600;
 constexpr uint32_t IMAGE_HEIGHT = static_cast<uint32_t>(IMAGE_WIDTH / (16.0f / 9.0f));
@@ -35,7 +35,7 @@ int main() {
     const RayTracer ray_tracer({
         .samples_per_pixel = 100,
         .max_depth = 100,
-        .num_threads = 12,
+        .num_threads = RayTracer::max_num_threads(),
 
         .percentage_update_progress = 0.05,
     });

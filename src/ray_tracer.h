@@ -22,9 +22,13 @@ class RayTracer {
         double percentage_update_progress = 0.2; // Displays progress every time it reaches the specified percentage
     };
 
+
     explicit RayTracer(Description description);
 
+    [[nodiscard]] static uint32_t max_num_threads();
+
     void render(const Camera& camera, const IHittable& scene, IImageDumper& image) const;
+
 
   private:
     Description m_desc;

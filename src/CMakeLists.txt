@@ -20,7 +20,14 @@ target_sources(${PROJECT_NAME} PRIVATE
         texture.cpp
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+# Include directory for lib
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Create include directory for users
+file(GLOB HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
+file(COPY ${HEADER_FILES} DESTINATION ${CMAKE_BINARY_DIR}/include/RayTracer)
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_BINARY_DIR}/include/)
 
 #
 # Dependencies
@@ -60,7 +67,7 @@ set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE BOOL "" FORCE)
 set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(assimp)
-target_link_libraries(${PROJECT_NAME} PUBLIC assimp::assimp)
+target_link_libraries(${PROJECT_NAME} PRIVATE assimp::assimp)
 
 # OpenMP
 find_package(OpenMP REQUIRED)

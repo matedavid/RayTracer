@@ -2,10 +2,10 @@
 
 #include "scene_parser.h"
 
-#include "hittable.h"
-#include "camera.h"
-#include "ray_tracer.h"
-#include "image_dumper.h"
+#include "RayTracer/hittable.h"
+#include "RayTracer/camera.h"
+#include "RayTracer/ray_tracer.h"
+#include "RayTracer/image_dumper.h"
 
 int main(int32_t argc, const char* argv[]) {
     if (argc < 2) {
@@ -26,7 +26,7 @@ int main(int32_t argc, const char* argv[]) {
     const RayTracer ray_tracer({
         .samples_per_pixel = 600,
         .max_depth = 200,
-        .num_threads = 12,
+        .num_threads = RayTracer::max_num_threads(),
     });
 
     ray_tracer.render(camera, bvh_scene, image);
