@@ -27,3 +27,4 @@ target_compile_options(${PROJECT_NAME} BEFORE PRIVATE -Wall -Wpedantic -Wextra -
 # Link RayTracer library
 target_link_libraries(${PROJECT_NAME} PRIVATE RayTracerLib)
 
+add_test(NAME Tests COMMAND ${PROJECT_NAME})
