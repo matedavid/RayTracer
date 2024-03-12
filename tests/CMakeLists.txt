@@ -1,5 +1,13 @@
 project(Tests LANGUAGES CXX)
 
+add_executable(${PROJECT_NAME})
+target_sources(${PROJECT_NAME} PRIVATE
+        hittable/sphere_tests.cpp
+        hittable/triangle_tests.cpp
+)
+
+target_compile_options(${PROJECT_NAME} BEFORE PRIVATE -Wall -Wpedantic -Wextra -Wshadow -Wconversion)
+
 #
 # Dependencies
 #
@@ -11,18 +19,8 @@ FetchContent_Declare(
         GIT_TAG v3.4.0
         GIT_PROGRESS TRUE
 )
-
 FetchContent_MakeAvailable(Catch2)
-
-add_executable(${PROJECT_NAME})
-target_sources(${PROJECT_NAME} PRIVATE
-        hittable/sphere_tests.cpp
-        hittable/triangle_tests.cpp
-)
-target_include_directories(${PROJECT_NAME} PRIVATE ../src/)
 target_link_libraries(${PROJECT_NAME} PRIVATE Catch2::Catch2WithMain)
-
-target_compile_options(${PROJECT_NAME} BEFORE PRIVATE -Wall -Wpedantic -Wextra -Wshadow -Wconversion -fopenmp)
 
 # Link RayTracer library
 target_link_libraries(${PROJECT_NAME} PRIVATE RayTracerLib)

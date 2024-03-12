@@ -22,15 +22,8 @@ std::optional<MaterialHit> Lambertian::scatter([[maybe_unused]] const Ray& ray, 
     return MaterialHit{
         .scatter = Ray(record.point, scatter_direction),
         .attenuation = m_texture != nullptr ? m_texture->sample(record.uv.x, record.uv.y) : m_albedo,
-        .pdf = glm::dot(uvw.w(), scatter_direction) / M_PI,
+        // .pdf = glm::dot(uvw.w(), scatter_direction) / M_PI,
     };
-}
-
-double Lambertian::scattering_pdf([[maybe_unused]] const Ray& ray,
-                                  [[maybe_unused]] const HitRecord& record,
-                                  [[maybe_unused]] const Ray& scattered) const {
-    const auto cos_theta = glm::dot(record.normal, glm::normalize(scattered.direction()));
-    return cos_theta < 0.0 ? 0.0 : cos_theta / M_PI;
 }
 
 //

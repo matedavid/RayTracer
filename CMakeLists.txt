@@ -10,8 +10,8 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 
 # Options
-set(BUILD_TESTS ON CACHE BOOL "Compile tests for the library")
 set(BUILD_APPS ON CACHE BOOL "Compile applications")
+set(BUILD_TESTS ON CACHE BOOL "Compile tests for the library")
 
 # Include library
 add_subdirectory(src)
