@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 using uvec3 = glm::uvec3;
 

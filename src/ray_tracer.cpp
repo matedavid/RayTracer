@@ -21,8 +21,7 @@ RayTracer::RayTracer(Description description) : m_desc(description) {
     m_desc.percentage_update_progress = interval(0.01, 1.0).clamp(m_desc.percentage_update_progress);
 }
 
-uint32_t RayTracer::max_num_threads() 
-{
+uint32_t RayTracer::max_num_threads() {
     return static_cast<uint32_t>(omp_get_max_threads());
 }
 
@@ -124,20 +123,24 @@ vec3 RayTracer::ray_color_r(const Ray& ray, const IHittable& scene, uint32_t dep
 
     const auto record = scene.hits(ray, interval(0.001, interval::infinity));
     if (record) {
-        auto color = vec3{0.0};
+        auto color_scatter = vec3{0.0};
+        auto color_emission = vec3{0.0};
 
         const auto material_hit = record->material->scatter(ray, *record);
         if (material_hit) {
-            const auto c = material_hit->attenuation * ray_color_r(material_hit->scatter, scene, depth - 1);
-            color += c;
+            const auto scattering_pdf = record->material->scattering_pdf(ray, *record, material_hit->scatter);
+
+            const auto color =
+                material_hit->attenuation * scattering_pdf * ray_color_r(material_hit->scatter, scene, depth - 1);
+            color_scatter += color / material_hit->pdf;
         }
 
         const auto emission_color = record->material->emitted(record->uv.x, record->uv.y);
         if (emission_color) {
-            color += *emission_color;
+            color_emission += *emission_color;
         }
 
-        return color;
+        return color_scatter + color_emission;
     }
 
     // Sky

@@ -22,8 +22,15 @@ std::optional<MaterialHit> Lambertian::scatter([[maybe_unused]] const Ray& ray, 
     return MaterialHit{
         .scatter = Ray(record.point, scatter_direction),
         .attenuation = m_texture != nullptr ? m_texture->sample(record.uv.x, record.uv.y) : m_albedo,
-        // .pdf = glm::dot(uvw.w(), scatter_direction) / M_PI,
+        .pdf = glm::dot(record.normal, scatter_direction) / glm::pi<double>(),
     };
+}
+
+double Lambertian::scattering_pdf([[maybe_unused]] const Ray& incoming,
+                                  const HitRecord& record,
+                                  const Ray& outgoing) const {
+    const auto cosine = glm::dot(record.normal, outgoing.direction());
+    return cosine < 0.0 ? 0.0 : cosine / glm::pi<double>();
 }
 
 //
@@ -39,10 +46,20 @@ std::optional<MaterialHit> Metal::scatter(const Ray& ray, const HitRecord& recor
     const auto material_hit = MaterialHit{
         .scatter = reflected_ray,
         .attenuation = m_albedo,
+        .pdf = 1.0,
     };
 
     return glm::dot(reflected_ray.direction(), record.normal) > 0.0 ? material_hit : std::optional<MaterialHit>{};
 }
+
+double Metal::scattering_pdf([[maybe_unused]] const Ray& incoming, const HitRecord& record, const Ray& outgoing) const {
+    // Just make sure the outgoing ray is in the same hemisphere as the normal
+    return glm::dot(record.normal, outgoing.direction()) < 0.0 ? 0.0 : 1.0;
+}
+
+//
+// Dielectric
+//
 
 Dielectric::Dielectric(double refraction_index) : m_refraction_index(refraction_index) {}
 
@@ -67,7 +84,14 @@ std::optional<MaterialHit> Dielectric::scatter(const Ray& ray, const HitRecord& 
     return MaterialHit{
         .scatter = Ray(record.point, scatter_direction),
         .attenuation = vec3(1.0),
+        .pdf = 1.0,
     };
+}
+
+double Dielectric::scattering_pdf([[maybe_unused]] const Ray& incoming,
+                                  [[maybe_unused]] const HitRecord& record,
+                                  [[maybe_unused]] const Ray& outgoing) const {
+    return 1.0;
 }
 
 double Dielectric::reflectance(double cosine, double ref_idx) {
@@ -90,4 +114,10 @@ std::optional<MaterialHit> DiffuseEmissive::scatter([[maybe_unused]] const Ray& 
 
 std::optional<vec3> DiffuseEmissive::emitted([[maybe_unused]] double u, [[maybe_unused]] double v) const {
     return m_color;
+}
+
+double DiffuseEmissive::scattering_pdf([[maybe_unused]] const Ray& incoming,
+                                       [[maybe_unused]] const HitRecord& record,
+                                       [[maybe_unused]] const Ray& outgoing) const {
+    return 0.0;
 }

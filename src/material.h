@@ -23,6 +23,10 @@ class IMaterial {
     [[nodiscard]] virtual std::optional<vec3> emitted([[maybe_unused]] double u, [[maybe_unused]] double v) const {
         return {};
     }
+
+    [[nodiscard]] virtual double scattering_pdf(const Ray& incoming,
+                                                const HitRecord& record,
+                                                const Ray& outgoing) const = 0;
 };
 
 class Lambertian : public IMaterial {
@@ -32,6 +36,9 @@ class Lambertian : public IMaterial {
     ~Lambertian() override = default;
 
     [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
+    [[nodiscard]] double scattering_pdf(const Ray& incoming,
+                                        const HitRecord& record,
+                                        const Ray& outgoing) const override;
 
   private:
     vec3 m_albedo{};
@@ -44,6 +51,9 @@ class Metal : public IMaterial {
     ~Metal() override = default;
 
     [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
+    [[nodiscard]] double scattering_pdf(const Ray& incoming,
+                                        const HitRecord& record,
+                                        const Ray& outgoing) const override;
 
   private:
     vec3 m_albedo;
@@ -56,6 +66,9 @@ class Dielectric : public IMaterial {
     ~Dielectric() override = default;
 
     [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
+    [[nodiscard]] double scattering_pdf(const Ray& incoming,
+                                        const HitRecord& record,
+                                        const Ray& outgoing) const override;
 
   private:
     double m_refraction_index;
@@ -69,6 +82,10 @@ class DiffuseEmissive : public IMaterial {
 
     [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
     [[nodiscard]] std::optional<vec3> emitted(double u, double v) const override;
+
+    [[nodiscard]] double scattering_pdf(const Ray& incoming,
+                                        const HitRecord& record,
+                                        const Ray& outgoing) const override;
 
   private:
     vec3 m_color;
