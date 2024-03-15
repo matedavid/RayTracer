@@ -128,10 +128,10 @@ vec3 RayTracer::ray_color_r(const Ray& ray, const IHittable& scene, uint32_t dep
 
         const auto material_hit = record->material->scatter(ray, *record);
         if (material_hit) {
-            const auto scattering_pdf = record->material->scattering_pdf(ray, *record, material_hit->scatter);
+            const auto scattering_prob = record->material->scattering_prob(ray, *record, material_hit->scatter);
 
             const auto color =
-                material_hit->attenuation * scattering_pdf * ray_color_r(material_hit->scatter, scene, depth - 1);
+                material_hit->attenuation * scattering_prob * ray_color_r(material_hit->scatter, scene, depth - 1);
             color_scatter += color / material_hit->pdf;
         }
 

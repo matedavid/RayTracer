@@ -26,7 +26,7 @@ std::optional<MaterialHit> Lambertian::scatter([[maybe_unused]] const Ray& ray, 
     };
 }
 
-double Lambertian::scattering_pdf([[maybe_unused]] const Ray& incoming,
+double Lambertian::scattering_prob([[maybe_unused]] const Ray& incoming,
                                   const HitRecord& record,
                                   const Ray& outgoing) const {
     const auto cosine = glm::dot(record.normal, outgoing.direction());
@@ -52,7 +52,7 @@ std::optional<MaterialHit> Metal::scatter(const Ray& ray, const HitRecord& recor
     return glm::dot(reflected_ray.direction(), record.normal) > 0.0 ? material_hit : std::optional<MaterialHit>{};
 }
 
-double Metal::scattering_pdf([[maybe_unused]] const Ray& incoming, const HitRecord& record, const Ray& outgoing) const {
+double Metal::scattering_prob([[maybe_unused]] const Ray& incoming, const HitRecord& record, const Ray& outgoing) const {
     // Just make sure the outgoing ray is in the same hemisphere as the normal
     return glm::dot(record.normal, outgoing.direction()) < 0.0 ? 0.0 : 1.0;
 }
@@ -88,7 +88,7 @@ std::optional<MaterialHit> Dielectric::scatter(const Ray& ray, const HitRecord& 
     };
 }
 
-double Dielectric::scattering_pdf([[maybe_unused]] const Ray& incoming,
+double Dielectric::scattering_prob([[maybe_unused]] const Ray& incoming,
                                   [[maybe_unused]] const HitRecord& record,
                                   [[maybe_unused]] const Ray& outgoing) const {
     return 1.0;
@@ -116,7 +116,7 @@ std::optional<vec3> DiffuseEmissive::emitted([[maybe_unused]] double u, [[maybe_
     return m_color;
 }
 
-double DiffuseEmissive::scattering_pdf([[maybe_unused]] const Ray& incoming,
+double DiffuseEmissive::scattering_prob([[maybe_unused]] const Ray& incoming,
                                        [[maybe_unused]] const HitRecord& record,
                                        [[maybe_unused]] const Ray& outgoing) const {
     return 0.0;

@@ -24,7 +24,7 @@ class IMaterial {
         return {};
     }
 
-    [[nodiscard]] virtual double scattering_pdf(const Ray& incoming,
+    [[nodiscard]] virtual double scattering_prob(const Ray& incoming,
                                                 const HitRecord& record,
                                                 const Ray& outgoing) const = 0;
 };
@@ -36,7 +36,7 @@ class Lambertian : public IMaterial {
     ~Lambertian() override = default;
 
     [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
-    [[nodiscard]] double scattering_pdf(const Ray& incoming,
+    [[nodiscard]] double scattering_prob(const Ray& incoming,
                                         const HitRecord& record,
                                         const Ray& outgoing) const override;
 
@@ -51,7 +51,7 @@ class Metal : public IMaterial {
     ~Metal() override = default;
 
     [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
-    [[nodiscard]] double scattering_pdf(const Ray& incoming,
+    [[nodiscard]] double scattering_prob(const Ray& incoming,
                                         const HitRecord& record,
                                         const Ray& outgoing) const override;
 
@@ -66,7 +66,7 @@ class Dielectric : public IMaterial {
     ~Dielectric() override = default;
 
     [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
-    [[nodiscard]] double scattering_pdf(const Ray& incoming,
+    [[nodiscard]] double scattering_prob(const Ray& incoming,
                                         const HitRecord& record,
                                         const Ray& outgoing) const override;
 
@@ -83,7 +83,7 @@ class DiffuseEmissive : public IMaterial {
     [[nodiscard]] std::optional<MaterialHit> scatter(const Ray& ray, const HitRecord& record) const override;
     [[nodiscard]] std::optional<vec3> emitted(double u, double v) const override;
 
-    [[nodiscard]] double scattering_pdf(const Ray& incoming,
+    [[nodiscard]] double scattering_prob(const Ray& incoming,
                                         const HitRecord& record,
                                         const Ray& outgoing) const override;
 
